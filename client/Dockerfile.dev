@@ -1,0 +1,14 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY client/package*.json ./client/
+COPY shared/package*.json ./shared/
+
+RUN npm install
+
+COPY shared/ ./shared/
+COPY client/ ./client/
+
+CMD ["npm", "run", "dev", "-w", "client", "--", "--host"]

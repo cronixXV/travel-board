@@ -1,0 +1,41 @@
+  services:
+    db:
+      image: postgres:16-alpine
+      restart: unless-stopped
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: wanderboard
+      ports:
+        - "5432:5432"
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+
+    server:
+      build:
+        context: .
+        dockerfile: server/Dockerfile.dev
+      restart: unless-stopped
+      volumes:
+        - ./server/src:/app/server/src
+        - ./shared:/app/shared
+      ports:
+        - "3000:3000"
+      env_file: .env
+      depends_on:
+        - db
+
+    client:
+      build:
+        context: .
+        dockerfile: client/Dockerfile.dev
+      restart: unless-stopped
+      volumes:
+        - ./client/src:/app/client/src
+      ports:
+        - "5173:5173"
+      environment:
+        - VITE_API_URL=http://localhost:3000
+
+  volumes:
+    postgres_data:
