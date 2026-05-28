@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'
 import { env } from './config/env'
 import { connectDB } from './database'
 import authRoutes from './routes/auth'
+import placesRoutes from './routes/places'
 
 const app = express()
 
@@ -17,6 +18,7 @@ app.get('/health', (_, res) => {
 })
 
 app.use('/api/auth', authRoutes)
+app.use('/api/places', placesRoutes)
 
 const start = async () => {
   await connectDB()
