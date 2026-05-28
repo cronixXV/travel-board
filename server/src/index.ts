@@ -1,17 +1,22 @@
 import 'reflect-metadata'
 import express from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import { env } from './config/env'
 import { connectDB } from './database'
+import authRoutes from './routes/auth'
 
 const app = express()
 
 app.use(cors({ origin: env.CLIENT_URL, credentials: true }))
 app.use(express.json())
+app.use(cookieParser())
 
 app.get('/health', (_, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
+
+app.use('/api/auth', authRoutes)
 
 const start = async () => {
   await connectDB()
