@@ -1,9 +1,16 @@
 import { RegisterForm } from '@/features/register'
+import { AuthLayout } from '@/app/layout/ui/auth-layout.tsx';
 
 export const RegisterPage = () => {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950">
+    <AuthLayout
+      title="Создать аккаунт"
+      description="Начните собирать личную карту путешествий с городами, датами и фото."
+      footerText="Уже есть аккаунт?"
+      footerLinkText="Войти"
+      footerLinkTo="/login"
+    >
       <RegisterForm />
-    </div>
+    </AuthLayout>
   )
 }
