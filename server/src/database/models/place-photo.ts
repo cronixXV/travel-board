@@ -31,6 +31,9 @@ export class PlacePhoto extends Model {
   @UpdatedAt
   declare updatedAt: Date
 
-  @BelongsTo(() => Place)
+  @BelongsTo(() => Place, {
+    foreignKey: 'placeId',
+    as: 'place',
+  })
   declare place: Place
 }

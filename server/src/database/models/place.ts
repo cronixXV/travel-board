@@ -55,6 +55,9 @@ export class Place extends Model {
   @BelongsTo(() => User)
   declare user: User
 
-  @HasMany(() => PlacePhoto)
+  @HasMany(() => PlacePhoto, {
+    foreignKey: 'placeId',
+    as: 'photos',
+  })
   declare photos: PlacePhoto[]
 }

@@ -1,41 +1,54 @@
-  services:
-    db:
-      image: postgres:16-alpine
-      restart: unless-stopped
-      environment:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_DB: wanderboard
-      ports:
-        - "5432:5432"
-      volumes:
-        - postgres_data:/var/lib/postgresql/data
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: wanderboard
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d wanderboard" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-    server:
-      build:
-        context: .
-        dockerfile: server/Dockerfile.dev
-      restart: unless-stopped
-      volumes:
-        - ./server/src:/app/server/src
-        - ./shared:/app/shared
-      ports:
-        - "3000:3000"
-      env_file: .env
-      depends_on:
-        - db
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile.dev
+    restart: unless-stopped
+    volumes:
+      - ./server/src:/app/server/src
+      - ./shared:/app/shared
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/wanderboard
+      PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy
 
-    client:
-      build:
-        context: .
-        dockerfile: client/Dockerfile.dev
-      restart: unless-stopped
-      volumes:
-        - ./client/src:/app/client/src
-      ports:
-        - "5173:5173"
-      environment:
-        - VITE_API_URL=http://localhost:3000
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile.dev
+    restart: unless-stopped
+    volumes:
+      - ./client/src:/app/client/src
+      - ./shared:/app/shared
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3000
+    depends_on:
+      - server
 
-  volumes:
-    postgres_data:
+volumes:
+  postgres_data:
