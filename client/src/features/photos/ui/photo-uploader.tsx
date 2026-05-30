@@ -8,6 +8,7 @@ import { IPlacePhoto, useRemovePhoto, useUploadPhotos } from '@/entities/place';
 import { cn } from '@/shared/lib/utils';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const MAX_PHOTOS = 10;
 
 const imageAccept: Accept = {
   'image/jpeg': ['.jpeg', '.jpg'],
@@ -23,27 +24,33 @@ interface PhotoUploaderProps {
 export const PhotoUploader = ({ placeId, photos }: PhotoUploaderProps) => {
   const [lightboxIndex, setLightboxIndex] = useState(-1);
 
-  const { mutate: uploadPhotos, isPending: isUploading } =
-    useUploadPhotos(placeId);
+  const {
+    mutate: uploadPhotos,
+    isPending: isUploading,
+    progress,
+  } = useUploadPhotos(placeId);
 
   const { mutate: removePhoto } = useRemovePhoto(placeId);
+
+  const remainingSlots = MAX_PHOTOS - photos.length;
+  const isLimitReached = remainingSlots <= 0;
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
-        uploadPhotos(acceptedFiles);
+        uploadPhotos(acceptedFiles.slice(0, remainingSlots));
       }
     },
-    [uploadPhotos]
+    [uploadPhotos, remainingSlots]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: imageAccept,
-    maxFiles: 10,
+    maxFiles: remainingSlots,
     maxSize: 5 * 1024 * 1024,
     multiple: true,
-    disabled: isUploading,
+    disabled: isUploading || isLimitReached,
   });
 
   const slides = photos.map((photo) => ({
@@ -52,47 +59,65 @@ export const PhotoUploader = ({ placeId, photos }: PhotoUploaderProps) => {
 
   return (
     <div className="space-y-3">
-      <div
-        {...getRootProps({
-          className: cn(
-            'group cursor-pointer rounded-2xl border border-dashed p-3 transition-all',
-            'bg-slate-50/80 hover:bg-white hover:shadow-[0_10px_30px_rgba(15,23,42,0.08)]',
-            isDragActive
-              ? 'border-[#ffdf3d] bg-[#ffdf3d]/10'
-              : 'border-slate-200',
-            isUploading && 'pointer-events-none opacity-70'
-          ),
-        })}
-      >
-        <input {...getInputProps({ 'aria-label': 'Загрузка фото' })} />
+      {!isLimitReached && (
+        <div
+          {...getRootProps({
+            className: cn(
+              'group cursor-pointer rounded-2xl border border-dashed p-3 transition-all',
+              'bg-slate-50/80 hover:bg-white hover:shadow-[0_10px_30px_rgba(15,23,42,0.08)]',
+              isDragActive
+                ? 'border-[#ffdf3d] bg-[#ffdf3d]/10'
+                : 'border-slate-200',
+              isUploading && 'pointer-events-none opacity-70'
+            ),
+          })}
+        >
+          <input {...getInputProps({ 'aria-label': 'Загрузка фото' })} />
 
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#ffdf3d] text-slate-950 shadow-sm">
-            {isUploading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : isDragActive ? (
-              <UploadCloud className="h-5 w-5" />
-            ) : (
-              <ImagePlus className="h-5 w-5" />
-            )}
-          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#ffdf3d] text-slate-950 shadow-sm">
+              {isUploading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : isDragActive ? (
+                <UploadCloud className="h-5 w-5" />
+              ) : (
+                <ImagePlus className="h-5 w-5" />
+              )}
+            </div>
 
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-950">
-              {isUploading
-                ? 'Загружаем фото...'
-                : isDragActive
-                  ? 'Отпустите файлы'
-                  : 'Добавить фото'}
-            </p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-slate-950">
+                {isUploading
+                  ? `Загружаем фото... ${progress}%`
+                  : isDragActive
+                    ? 'Отпустите файлы'
+                    : 'Добавить фото'}
+              </p>
 
-            <p className="mt-0.5 text-xs leading-5 text-slate-500">
-              JPEG, PNG или WebP до 5 МБ
-            </p>
+              {isUploading ? (
+                <div className="mt-1.5 w-full bg-slate-200 rounded-full h-1">
+                  <div
+                    className="bg-slate-800 h-1 rounded-full transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              ) : (
+                <p className="mt-0.5 text-xs leading-5 text-slate-500">
+                  JPEG, PNG или WebP до 5 МБ · ещё {remainingSlots} из{' '}
+                  {MAX_PHOTOS}
+                </p>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-
+      )}
+      s
+      {isLimitReached && (
+        <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2 text-xs text-slate-500">
+          <Camera className="h-4 w-4 text-slate-400" />
+          Достигнут лимит в {MAX_PHOTOS} фото
+        </div>
+      )}
       {photos.length > 0 ? (
         <div className="grid grid-cols-3 gap-2">
           {photos.map((photo, index) => (
@@ -129,7 +154,6 @@ export const PhotoUploader = ({ placeId, photos }: PhotoUploaderProps) => {
           Пока нет фотографий
         </div>
       )}
-
       <Lightbox
         open={lightboxIndex >= 0}
         index={lightboxIndex}

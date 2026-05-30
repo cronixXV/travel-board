@@ -1,3 +1,14 @@
-export type {IPlacePhoto, IPlace, ICreatePlaceData} from './model/types/place.types'
-export {placesApi,photosApi} from './api/place.api'
-export {usePlaces, useCreatePlace, useUpdatePlace, useDeletePlace,useUploadPhotos, useRemovePhoto } from './hooks/use-places'
+export type {
+  IPlacePhoto,
+  IPlace,
+  ICreatePlaceData,
+} from './model/types/place.types';
+export { placesApi } from './api/place.api';
+export { photosApi } from './api/photo.api';
+export {
+  usePlaces,
+  useCreatePlace,
+  useUpdatePlace,
+  useDeletePlace,
+} from './hooks/use-places';
+export { useUploadPhotos, useRemovePhoto } from './hooks/use-photos';
