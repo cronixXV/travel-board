@@ -1,90 +1,100 @@
-import {  useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
-import { usePlaces, useDeletePlace, IPlace } from '@/entities/place';
-import { AddPlaceForm } from '@/features/places/ui/add-place-form'
+import { useMemo, useState } from 'react';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { Loader2 } from 'lucide-react';
+
+import { IPlace, useDeletePlace, usePlaces } from '@/entities/place';
+import { AddPlaceForm } from '@/features/places/ui/add-place-form';
 import { MapClickHandler } from './map-click-handler';
-import { PhotoUploader } from '@/features/photos';
+import { PlacePopupContent } from './place-popup-content';
 
-type TIconDefaultWithPrivate = L.Icon.Default & {
-  _getIconUrl?: () => string
-}
-
-delete (L.Icon.Default.prototype as TIconDefaultWithPrivate)._getIconUrl
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-})
+const createPlaceIcon = () =>
+  L.divIcon({
+    className: 'wanderboard-marker',
+    html: `
+      <div class="wanderboard-marker__pin">
+        <div class="wanderboard-marker__dot"></div>
+      </div>
+    `,
+    iconSize: [34, 42],
+    iconAnchor: [17, 42],
+    popupAnchor: [0, -38],
+  });
 
 export const TravelMap = () => {
-  const { data: places = [], isLoading } = usePlaces()
-  const { mutate: deletePlace } = useDeletePlace()
-  const [pendingCoords, setPendingCoords] = useState<{ lat: number; lng: number } | null>(null)
+  const { data: places = [], isLoading } = usePlaces();
+  const { mutate: deletePlace } = useDeletePlace();
+
+  const [pendingCoords, setPendingCoords] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
+  const placeIcon = useMemo(() => createPlaceIcon(), []);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900" />
+      <div className="flex h-full items-center justify-center bg-[#f6f5ef]">
+        <div className="flex items-center gap-3 rounded-full border border-white/80 bg-white/90 px-5 py-3 shadow-[0_16px_50px_rgba(15,23,42,0.12)] backdrop-blur-xl">
+          <Loader2 className="h-5 w-5 animate-spin text-slate-950" />
+          <span className="text-sm font-semibold text-slate-700">
+            Загружаем карту...
+          </span>
+        </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div style={{ height: '100%', width: '100%', position: 'relative' }}>
+    <div className="relative h-full w-full">
       <MapContainer
         center={[20, 0]}
         zoom={2}
+        minZoom={2}
         style={{ height: '100%', width: '100%' }}
         doubleClickZoom={false}
+        zoomControl={true}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
 
-        <MapClickHandler onDblClick={(lat, lng) => setPendingCoords({ lat, lng })} />
+        <MapClickHandler
+          onDblClick={(lat, lng) => setPendingCoords({ lat, lng })}
+        />
 
         {places.map((place: IPlace) => (
-          <Marker key={place.id} position={[place.lat, place.lng]}>
-            <Popup minWidth={240} maxWidth={280}>
-              <div className="space-y-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-base">{place.name}</h3>
-                    {place.country && (
-                      <p className="text-xs text-slate-400">{place.country}</p>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => deletePlace(place.id)}
-                    className="text-xs text-red-400 hover:text-red-600 ml-2"
-                  >
-                    Удалить
-                  </button>
-                </div>
-
-                {place.description && (
-                  <p className="text-sm text-slate-500">{place.description}</p>
-                )}
-
-                {place.visitedAt && (
-                  <p className="text-xs text-slate-400">
-                    📅 {new Date(place.visitedAt).toLocaleDateString('ru-RU')}
-                  </p>
-                )}
-
-                <PhotoUploader placeId={place.id} photos={place.photos || []} />
-              </div>
+          <Marker
+            key={place.id}
+            position={[place.lat, place.lng]}
+            icon={placeIcon}
+          >
+            <Popup
+              className="wanderboard-place-popup"
+              minWidth={340}
+              maxWidth={340}
+              closeButton={false}
+              autoPan
+              autoPanPaddingTopLeft={[24, 110]}
+              autoPanPaddingBottomRight={[24, 24]}
+            >
+              <PlacePopupContent place={place} onDelete={deletePlace} />
             </Popup>
           </Marker>
         ))}
       </MapContainer>
 
+      <div className="pointer-events-none absolute bottom-5 left-5 z-[1000] hidden rounded-2xl border border-white/80 bg-white/90 px-4 py-3 shadow-[0_12px_40px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:block">
+        <p className="text-xs font-medium text-slate-500">На карте</p>
+        <p className="mt-1 text-lg font-bold tracking-[-0.02em] text-slate-950">
+          {places.length} {places.length === 1 ? 'место' : 'мест'}
+        </p>
+      </div>
+
       {pendingCoords && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-sm px-4">
+        <div className="absolute bottom-6 left-1/2 z-[1000] w-full max-w-[380px] -translate-x-1/2 px-4">
           <AddPlaceForm
             lat={pendingCoords.lat}
             lng={pendingCoords.lng}
@@ -92,10 +102,6 @@ export const TravelMap = () => {
           />
         </div>
       )}
-
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-slate-600 shadow-sm">
-        Двойной клик по карте — добавить место
-      </div>
     </div>
-  )
-}
+  );
+};

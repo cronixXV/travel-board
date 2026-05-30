@@ -1,21 +1,26 @@
-import React, { useState } from 'react'
-import { useCreatePlace } from '@/entities/place'
+import React, { useState } from 'react';
+import { Loader2, MapPin, Navigation, X } from 'lucide-react';
+
+import { useCreatePlace } from '@/entities/place';
+import { Button } from '@/shared/ui/button/ui/button';
+import { Input } from '@/shared/ui/input/ui/input';
+import { Label } from '@/shared/ui/label/ui/label';
 
 interface IAddPlaceFormProps {
-  lat: number
-  lng: number
-  onClose: () => void
+  lat: number;
+  lng: number;
+  onClose: () => void;
 }
 
 export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
-  const { mutate: createPlace, isPending } = useCreatePlace()
-  const [name, setName] = useState<string>('')
-  const [description, setDescription] = useState<string>('')
+  const { mutate: createPlace, isPending } = useCreatePlace();
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
 
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-    if (!name.trim()) return
+    if (!name.trim()) return;
 
     createPlace(
       {
@@ -27,63 +32,116 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
       },
       {
         onSuccess: () => {
-          setName('')
-          setDescription('')
-          onClose()
+          setName('');
+          setDescription('');
+          onClose();
         },
       }
-    )
-  }
+    );
+  };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-4 border border-slate-100">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-slate-800">Новое место</h3>
-        <button
-          onClick={onClose}
-          className="text-slate-400 hover:text-slate-600 text-lg leading-none"
-        >
-          ×
-        </button>
-      </div>
+    <div className="overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.18)] ring-1 ring-slate-200/70">
+      <div className="h-2 bg-[#ffdf3d]" />
 
-      <p className="text-xs text-slate-400 mb-3">
-        {lat.toFixed(4)}, {lng.toFixed(4)}
-      </p>
+      <div className="p-5">
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div>
+            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#ffdf3d] text-slate-950 shadow-sm">
+              <MapPin className="h-5 w-5" />
+            </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          type="text"
-          placeholder="Название места"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-300"
-          autoFocus
-        />
-        <textarea
-          placeholder="Описание (необязательно)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={2}
-          className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-300 resize-none"
-        />
-        <div className="flex gap-2">
+            <h3 className="text-xl font-bold tracking-[-0.02em] text-slate-950">
+              Новое место
+            </h3>
+
+            <p className="mt-1 text-sm leading-5 text-slate-500">
+              Добавьте точку на свою карту путешествий.
+            </p>
+          </div>
+
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg hover:bg-slate-50"
+            aria-label="Закрыть"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
           >
-            Отмена
-          </button>
-          <button
-            type="submit"
-            disabled={isPending || !name.trim()}
-            className="flex-1 px-3 py-2 text-sm bg-slate-900 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50"
-          >
-            {isPending ? 'Сохраняем...' : 'Добавить'}
+            <X className="h-4 w-4" />
           </button>
         </div>
-      </form>
+
+        <div className="mb-5 flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500">
+          <Navigation className="h-4 w-4 text-slate-400" />
+          <span>
+            {lat.toFixed(4)}, {lng.toFixed(4)}
+          </span>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label
+              htmlFor="place-name"
+              className="text-sm font-semibold text-slate-700"
+            >
+              Название
+            </Label>
+
+            <Input
+              id="place-name"
+              type="text"
+              placeholder="Например, Париж"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              className="h-12 rounded-2xl border-slate-200 bg-slate-50 px-4 text-base shadow-none focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40"
+              autoFocus
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label
+              htmlFor="place-description"
+              className="text-sm font-semibold text-slate-700"
+            >
+              Описание
+            </Label>
+
+            <textarea
+              id="place-description"
+              placeholder="Что запомнилось в этом месте?"
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              rows={3}
+              className="min-h-[92px] w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-950 shadow-none outline-none transition placeholder:text-slate-400 focus:border-[#ffdf3d] focus:ring-3 focus:ring-[#ffdf3d]/40"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="h-11 rounded-2xl border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Отмена
+            </Button>
+
+            <Button
+              type="submit"
+              disabled={isPending || !name.trim()}
+              className="h-11 rounded-2xl bg-[#ffdf3d] text-sm font-bold text-slate-950 shadow-none hover:bg-[#ffd21f]"
+            >
+              {isPending ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Сохраняем
+                </span>
+              ) : (
+                'Добавить'
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
-  )
-}
+  );
+};
