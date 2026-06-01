@@ -1,16 +1,43 @@
-import { ReactNode } from 'react';
-import { Compass, LogOut, MousePointer2, UserRound } from 'lucide-react';
+import { ReactNode, useState } from 'react';
+import {
+  Check,
+  Compass,
+  LogOut,
+  MousePointer2,
+  Share2,
+  UserRound,
+} from 'lucide-react';
 
 import { useCurrentUser, useLogout } from '@/entities/auth';
 import { Button } from '@/shared/ui/button/ui/button';
 
-interface IDashboardLayoutProps {
+interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-export const DashboardLayout = ({ children }: IDashboardLayoutProps) => {
+export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { data: user } = useCurrentUser();
   const { mutate: logout } = useLogout();
+  const [copied, setCopied] = useState(false);
+
+  const getPublicAppUrl = () => {
+    return import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin;
+  };
+
+  const handleShare = async () => {
+    if (!user?.username) return;
+
+    const url = `${getPublicAppUrl()}/map/${user.username}`;
+
+    try {
+      await navigator.clipboard.writeText(url);
+
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      window.prompt('Скопируйте ссылку:', url);
+    }
+  };
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#f6f5ef]">
@@ -48,6 +75,29 @@ export const DashboardLayout = ({ children }: IDashboardLayoutProps) => {
               </div>
 
               <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleShare}
+                className="h-10 rounded-full border-slate-200 bg-white px-4 font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4 text-green-500 sm:mr-1" />
+                    <span className="hidden text-green-600 sm:inline">
+                      Скопировано
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="h-4 w-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Поделиться</span>
+                  </>
+                )}
+              </Button>
+
+              <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => logout()}

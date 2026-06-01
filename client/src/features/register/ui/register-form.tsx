@@ -1,19 +1,25 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { AlertCircle, ArrowRight, Mail, LockKeyhole, User } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { AlertCircle, ArrowRight, LockKeyhole, Mail, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-import { RegisterSchema, RegisterInput } from '@wanderboard/shared'
+import { RegisterInput, RegisterSchema } from '@wanderboard/shared';
 
-import { useRegister } from '@/entities/auth'
+import { useRegister } from '@/entities/auth';
 
-import { Button } from '@/shared/ui/button/ui/button'
-import { Input } from '@/shared/ui/input/ui/input'
-import { Label } from '@/shared/ui/label/ui/label'
+import { Button } from '@/shared/ui/button/ui/button';
+import { Input } from '@/shared/ui/input/ui/input';
+import { Label } from '@/shared/ui/label/ui/label';
+
+const inputClassName =
+  'h-12 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base shadow-none transition-colors placeholder:text-slate-400 focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40 aria-invalid:border-red-300 aria-invalid:bg-red-50/40 aria-invalid:ring-red-100';
+
+const errorClassName =
+  'flex items-center gap-1.5 text-sm font-medium text-red-500';
 
 export const RegisterForm = () => {
-  const navigate = useNavigate()
-  const { mutate: register_, isPending, error } = useRegister()
+  const navigate = useNavigate();
+  const { mutate: register_, isPending, error } = useRegister();
 
   const {
     register,
@@ -21,13 +27,15 @@ export const RegisterForm = () => {
     formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(RegisterSchema),
-  })
+  });
 
   const onSubmit = (data: RegisterInput) => {
     register_(data, {
       onSuccess: () => navigate('/'),
-    })
-  }
+    });
+  };
+
+  const hasServerError = Boolean(error);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -46,13 +54,17 @@ export const RegisterForm = () => {
             id="username"
             placeholder="Введите имя пользователя"
             autoComplete="username"
-            className="h-12 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base shadow-none transition-colors placeholder:text-slate-400 focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40"
+            aria-invalid={Boolean(errors.username) || hasServerError}
+            className={inputClassName}
             {...register('username')}
           />
         </div>
 
         {errors.username && (
-          <p className="text-sm text-red-500">{errors.username.message}</p>
+          <p className={errorClassName}>
+            <AlertCircle className="h-4 w-4" />
+            {errors.username.message}
+          </p>
         )}
       </div>
 
@@ -69,13 +81,17 @@ export const RegisterForm = () => {
             type="email"
             placeholder="Введите вашу почту"
             autoComplete="email"
-            className="h-12 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base shadow-none transition-colors placeholder:text-slate-400 focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40"
+            aria-invalid={Boolean(errors.email) || hasServerError}
+            className={inputClassName}
             {...register('email')}
           />
         </div>
 
         {errors.email && (
-          <p className="text-sm text-red-500">{errors.email.message}</p>
+          <p className={errorClassName}>
+            <AlertCircle className="h-4 w-4" />
+            {errors.email.message}
+          </p>
         )}
       </div>
 
@@ -93,15 +109,19 @@ export const RegisterForm = () => {
           <Input
             id="password"
             type="password"
-            placeholder="Минимум 6 символов"
+            placeholder="Минимум 8 символов"
             autoComplete="new-password"
-            className="h-12 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base shadow-none transition-colors placeholder:text-slate-400 focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40"
+            aria-invalid={Boolean(errors.password)}
+            className={inputClassName}
             {...register('password')}
           />
         </div>
 
         {errors.password && (
-          <p className="text-sm text-red-500">{errors.password.message}</p>
+          <p className={errorClassName}>
+            <AlertCircle className="h-4 w-4" />
+            {errors.password.message}
+          </p>
         )}
       </div>
 
@@ -129,5 +149,5 @@ export const RegisterForm = () => {
         )}
       </Button>
     </form>
-  )
-}
+  );
+};

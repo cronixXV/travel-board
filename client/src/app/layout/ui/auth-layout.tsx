@@ -27,7 +27,7 @@ export const AuthLayout = ({
         Мои путешествия
       </div>
 
-      <div className="absolute right-[12%] top-[24%] hidden rounded-2xl bg-white/90 p-3 shadow-[0_8px_30px_rgba(15,23,42,0.10)] backdrop-blur lg:block">
+      <div className="absolute left-[15%] top-[25%] hidden rounded-2xl bg-white/90 p-3 shadow-[0_8px_30px_rgba(15,23,42,0.10)] backdrop-blur lg:block">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#ffdf3d]">
             <Route className="h-5 w-5 text-slate-950" />
@@ -39,7 +39,7 @@ export const AuthLayout = ({
         </div>
       </div>
 
-      <div className="pointer-events-none absolute left-[24%] top-[36%] hidden rounded-2xl bg-white/90 p-3 shadow-[0_8px_30px_rgba(15,23,42,0.10)] backdrop-blur xl:block">
+      <div className="pointer-events-none absolute left-[24%] top-[40%] hidden rounded-2xl bg-white/90 p-3 shadow-[0_8px_30px_rgba(15,23,42,0.10)] backdrop-blur xl:block">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-white">
             <Share2 className="h-5 w-5" />

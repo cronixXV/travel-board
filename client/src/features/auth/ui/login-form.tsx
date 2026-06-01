@@ -1,22 +1,19 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { AlertCircle, ArrowRight, Mail, LockKeyhole } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { AlertCircle, ArrowRight, LockKeyhole, Mail } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-import {
-  LoginInput,
-  LoginSchema,
-} from '@wanderboard/shared'
+import { LoginInput, LoginSchema } from '@wanderboard/shared';
 
-import { useLogin } from '@/entities/auth'
+import { useLogin } from '@/entities/auth';
 
-import { Button } from '@/shared/ui/button/ui/button'
-import { Input } from '@/shared/ui/input/ui/input'
-import { Label } from '@/shared/ui/label/ui/label'
+import { Button } from '@/shared/ui/button/ui/button';
+import { Input } from '@/shared/ui/input/ui/input';
+import { Label } from '@/shared/ui/label/ui/label';
 
 export const LoginForm = () => {
-  const navigate = useNavigate()
-  const { mutate: login, isPending, error } = useLogin()
+  const navigate = useNavigate();
+  const { mutate: login, isPending, error } = useLogin();
 
   const {
     register,
@@ -24,19 +21,19 @@ export const LoginForm = () => {
     formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(LoginSchema),
-  })
+  });
 
   const onSubmit = (data: LoginInput) => {
     login(data, {
       onSuccess: () => navigate('/'),
-    })
-  }
+    });
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="space-y-2">
         <Label htmlFor="email" className="text-sm font-semibold text-slate-700">
-         Почта
+          Почта
         </Label>
 
         <div className="relative">
@@ -47,7 +44,8 @@ export const LoginForm = () => {
             type="email"
             placeholder="Введите вашу почту"
             autoComplete="email"
-            className="h-12 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base shadow-none transition-colors placeholder:text-slate-400 focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40"
+            aria-invalid={!!errors.email || !!error}
+            className="h-12 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base shadow-none transition-colors placeholder:text-slate-400 focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40 aria-invalid:border-red-300 aria-invalid:ring-red-100"
             {...register('email')}
           />
         </div>
@@ -73,7 +71,8 @@ export const LoginForm = () => {
             type="password"
             placeholder="••••••••"
             autoComplete="current-password"
-            className="h-12 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base shadow-none transition-colors placeholder:text-slate-400 focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40"
+            aria-invalid={!!errors.password || !!error}
+            className="h-12 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base shadow-none transition-colors placeholder:text-slate-400 focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40 aria-invalid:border-red-300 aria-invalid:ring-red-100"
             {...register('password')}
           />
         </div>
@@ -105,5 +104,5 @@ export const LoginForm = () => {
         )}
       </Button>
     </form>
-  )
-}
+  );
+};

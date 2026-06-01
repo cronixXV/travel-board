@@ -23,13 +23,21 @@ export const useCreatePlace = () => {
 
 export const useUpdatePlace = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (data: { id: number; data: Partial<ICreatePlaceData> }) =>
       placesApi.update(data.id, data.data),
+
     onSuccess: (updatedPlace) => {
-      queryClient.setQueryData(['places'], (oldData: IPlace[]) =>
+      queryClient.setQueryData(['places'], (oldData: IPlace[] = []) =>
         oldData.map((place) =>
-          place.id === updatedPlace.id ? updatedPlace : place
+          place.id === updatedPlace.id
+            ? {
+                ...place,
+                ...updatedPlace,
+                photos: updatedPlace.photos || place.photos || [],
+              }
+            : place
         )
       );
     },

@@ -1,5 +1,5 @@
 import { ICreatePlaceData, IPlace } from '@/entities/place';
-import { api } from '@/shared/api/base-api.ts';
+import { api } from '@/shared/api/base-api';
 
 export const placesApi = {
   getAll: async (): Promise<IPlace[]> => {
@@ -24,7 +24,9 @@ export const placesApi = {
     await api.delete(`/api/places/${id}`);
   },
 
-  getPublic: async (username: string): Promise<{ places: IPlace[] }> => {
+  getPublic: async (
+    username: string
+  ): Promise<{ user: { id: number; username: string }; places: IPlace[] }> => {
     const response = await api.get(`/api/places/public/${username}`);
     return response.data;
   },

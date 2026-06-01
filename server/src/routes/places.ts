@@ -1,11 +1,14 @@
-import { Router, Request, Response } from 'express'
-import { Place } from '../database/models/place'
-import { PlacePhoto } from '../database/models/place-photo'
-import { User } from '../database/models/user'
-import { CreatePlaceSchema, UpdatePlaceSchema } from '@wanderboard/shared/schemas/place.schema'
-import { authenticate } from '../middleware/authenticate'
+import { Request, Response, Router } from 'express';
+import { Place } from '../database/models/place';
+import { PlacePhoto } from '../database/models/place-photo';
+import { User } from '../database/models/user';
+import {
+  CreatePlaceSchema,
+  UpdatePlaceSchema,
+} from '@wanderboard/shared/schemas/place.schema';
+import { authenticate } from '../middleware/authenticate';
 
-const router = Router()
+const router = Router();
 
 // GET /api/places — все места текущего пользователя
 router.get('/', authenticate, async (req: Request, res: Response) => {
@@ -15,129 +18,175 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       include: [
         {
           model: PlacePhoto,
-          limit: 1,
-          order: [['createdAt', 'ASC']],
+          as: 'photos',
         },
       ],
       order: [['createdAt', 'DESC']],
-    })
-    res.json({ places })
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Ошибка сервера' })
-  }
-})
+    });
 
-// GET /api/places/:id — одно место
+    res.json({ places });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+// GET /api/places/public/:username — публичные места пользователя
+// Важно: этот route должен быть ДО /:id
+router.get('/public/:username', async (req: Request, res: Response) => {
+  try {
+    const user = await User.findOne({
+      where: { username: req.params.username },
+      attributes: ['id', 'username'],
+    });
+
+    if (!user) {
+      res.status(404).json({ error: 'Пользователь не найден' });
+      return;
+    }
+
+    const places = await Place.findAll({
+      where: {
+        userId: user.id,
+        isPublic: true,
+      },
+      include: [
+        {
+          model: PlacePhoto,
+          as: 'photos',
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.json({ user, places });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+// GET /api/places/:id — одно место текущего пользователя
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const place = await Place.findOne({
-      where: { id: req.params.id, userId: req.user!.userId },
-      include: [{ model: PlacePhoto }],
-    })
+      where: {
+        id: req.params.id,
+        userId: req.user!.userId,
+      },
+      include: [
+        {
+          model: PlacePhoto,
+          as: 'photos',
+        },
+      ],
+    });
 
     if (!place) {
-      res.status(404).json({ error: 'Место не найдено' })
-      return
+      res.status(404).json({ error: 'Место не найдено' });
+      return;
     }
 
-    res.json({ place })
+    res.json({ place });
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Ошибка сервера' })
+    console.error(error);
+    res.status(500).json({ error: 'Ошибка сервера' });
   }
-})
+});
 
 // POST /api/places — создать место
 router.post('/', authenticate, async (req: Request, res: Response) => {
-  const parsed = CreatePlaceSchema.safeParse(req.body)
+  const parsed = CreatePlaceSchema.safeParse(req.body);
+
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.issues[0].message })
-    return
+    res.status(400).json({ error: parsed.error.issues[0].message });
+    return;
   }
 
   try {
     const place = await Place.create({
       ...parsed.data,
       userId: req.user!.userId,
-    })
-    res.status(201).json({ place })
+    });
+
+    res.status(201).json({
+      place: {
+        ...place.toJSON(),
+        photos: [],
+      },
+    });
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Ошибка сервера' })
+    console.error(error);
+    res.status(500).json({ error: 'Ошибка сервера' });
   }
-})
+});
 
 // PATCH /api/places/:id — обновить место
 router.patch('/:id', authenticate, async (req: Request, res: Response) => {
-  const parsed = UpdatePlaceSchema.safeParse(req.body)
+  const parsed = UpdatePlaceSchema.safeParse(req.body);
+
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.issues[0].message })
-    return
+    res.status(400).json({ error: parsed.error.issues[0].message });
+    return;
   }
 
   try {
     const place = await Place.findOne({
-      where: { id: req.params.id, userId: req.user!.userId },
-    })
+      where: {
+        id: req.params.id,
+        userId: req.user!.userId,
+      },
+    });
 
     if (!place) {
-      res.status(404).json({ error: 'Место не найдено' })
-      return
+      res.status(404).json({ error: 'Место не найдено' });
+      return;
     }
 
-    await place.update(parsed.data)
-    res.json({ place })
+    await place.update(parsed.data);
+
+    const updatedPlace = await Place.findOne({
+      where: {
+        id: place.id,
+        userId: req.user!.userId,
+      },
+      include: [
+        {
+          model: PlacePhoto,
+          as: 'photos',
+        },
+      ],
+    });
+
+    res.json({ place: updatedPlace });
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Ошибка сервера' })
+    console.error(error);
+    res.status(500).json({ error: 'Ошибка сервера' });
   }
-})
+});
 
 // DELETE /api/places/:id — удалить место
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const place = await Place.findOne({
-      where: { id: req.params.id, userId: req.user!.userId },
-    })
+      where: {
+        id: req.params.id,
+        userId: req.user!.userId,
+      },
+    });
 
     if (!place) {
-      res.status(404).json({ error: 'Место не найдено' })
-      return
+      res.status(404).json({ error: 'Место не найдено' });
+      return;
     }
 
-    await place.destroy()
-    res.json({ message: 'Место удалено' })
+    await place.destroy();
+
+    res.json({ message: 'Место удалено' });
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Ошибка сервера' })
+    console.error(error);
+    res.status(500).json({ error: 'Ошибка сервера' });
   }
-})
+});
 
-// GET /api/places/public/:username — публичные места пользователя
-router.get('/public/:username', async (req: Request, res: Response) => {
-  try {
-    const user = await User.findOne({
-      where: { username: req.params.username },
-      attributes: ['id', 'username'],
-    })
-
-    if (!user) {
-      res.status(404).json({ error: 'Пользователь не найден' })
-      return
-    }
-
-    const places = await Place.findAll({
-      where: { userId: user.id, isPublic: true },
-      include: [{ model: PlacePhoto }],
-      order: [['createdAt', 'DESC']],
-    })
-
-    res.json({ user, places })
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Ошибка сервера' })
-  }
-})
-
-export default router
+export default router;
