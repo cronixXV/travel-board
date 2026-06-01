@@ -41,7 +41,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#f6f5ef]">
-      <header className="pointer-events-none absolute left-0 right-0 top-0 z-[1200] px-4 pt-4 sm:px-6">
+      <header className="pointer-events-none absolute left-0 right-0 top-0 z-1200 px-4 pt-4 sm:px-6">
         <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3">
           <div className="flex justify-start">
             <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-white/80 bg-white/90 px-3 py-2 shadow-[0_12px_40px_rgba(15,23,42,0.12)] backdrop-blur-xl">

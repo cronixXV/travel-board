@@ -131,7 +131,7 @@ export const PhotoUploader = ({ placeId, photos }: PhotoUploaderProps) => {
                 onClick={() => setLightboxIndex(index)}
               />
 
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0 opacity-0 transition-opacity group-hover:opacity-100" />
+              <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/35 via-black/0 to-black/0 opacity-0 transition-opacity group-hover:opacity-100" />
 
               <button
                 type="button"

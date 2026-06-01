@@ -15,7 +15,7 @@ export const PlacePopupCard = ({
   children,
 }: PlacePopupCardProps) => {
   return (
-    <div className="w-[340px] overflow-hidden rounded-[28px] bg-white">
+    <div className="w-85 overflow-hidden rounded-[28px] bg-white">
       <div className="flex items-start justify-between gap-4 p-5 pb-4">
         <div className="min-w-0">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ffdf3d] text-slate-950 shadow-sm">

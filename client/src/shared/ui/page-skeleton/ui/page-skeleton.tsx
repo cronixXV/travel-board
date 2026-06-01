@@ -30,7 +30,7 @@ export const PageSkeleton = () => {
       </header>
 
       <main className="relative z-0 flex h-full items-center justify-center px-4">
-        <div className="w-full max-w-[420px] rounded-[32px] border border-white/80 bg-white/90 p-7 shadow-[0_24px_80px_rgba(15,23,42,0.14)] backdrop-blur-xl">
+        <div className="w-full max-w-105 rounded-[32px] border border-white/80 bg-white/90 p-7 shadow-[0_24px_80px_rgba(15,23,42,0.14)] backdrop-blur-xl">
           <div className="h-14 w-14 animate-pulse rounded-2xl bg-[#ffdf3d]/80" />
 
           <div className="mt-8 h-8 w-56 animate-pulse rounded-full bg-slate-200" />

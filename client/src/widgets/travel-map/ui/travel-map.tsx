@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import { Loader2 } from 'lucide-react';
 
 import { IPlace, useDeletePlace, usePlaces } from '@/entities/place';
-import { AddPlaceForm } from '@/features/places/ui/add-place-form';
+import { AddPlaceForm } from '@/features/places';
 import { MapClickHandler } from './map-click-handler';
 import { PlacePopupContent } from './place-popup-content';
 
@@ -86,7 +86,7 @@ export const TravelMap = () => {
         ))}
       </MapContainer>
 
-      <div className="pointer-events-none absolute bottom-5 left-5 z-[1000] hidden rounded-2xl border border-white/80 bg-white/90 px-4 py-3 shadow-[0_12px_40px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:block">
+      <div className="pointer-events-none absolute bottom-5 left-5 z-1000 hidden rounded-2xl border border-white/80 bg-white/90 px-4 py-3 shadow-[0_12px_40px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:block">
         <p className="text-xs font-medium text-slate-500">На карте</p>
         <p className="mt-1 text-lg font-bold tracking-[-0.02em] text-slate-950">
           {places.length} {places.length === 1 ? 'место' : 'мест'}
@@ -94,7 +94,7 @@ export const TravelMap = () => {
       </div>
 
       {pendingCoords && (
-        <div className="absolute bottom-6 left-1/2 z-[1000] w-full max-w-[380px] -translate-x-1/2 px-4">
+        <div className="absolute bottom-6 left-1/2 z-1000 w-full max-w-95 -translate-x-1/2 px-4">
           <AddPlaceForm
             lat={pendingCoords.lat}
             lng={pendingCoords.lng}

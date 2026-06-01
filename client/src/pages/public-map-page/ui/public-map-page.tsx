@@ -138,7 +138,7 @@ export const PublicMapPage = () => {
       <meta name="twitter:image" content={ogImage} />
 
       <div className="relative h-screen overflow-hidden bg-[#f6f5ef]">
-        <header className="pointer-events-none absolute left-0 right-0 top-0 z-[1200] px-4 pt-4 sm:px-6">
+        <header className="pointer-events-none absolute left-0 right-0 top-0 z-1200 px-4 pt-4 sm:px-6">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
             <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-white/80 bg-white/90 px-3 py-2 shadow-[0_12px_40px_rgba(15,23,42,0.12)] backdrop-blur-xl">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-950 text-white shadow-sm">
@@ -201,7 +201,7 @@ export const PublicMapPage = () => {
           ))}
         </MapContainer>
 
-        <div className="pointer-events-none absolute bottom-5 left-5 z-[1000] hidden rounded-2xl border border-white/80 bg-white/90 px-4 py-3 shadow-[0_12px_40px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:block">
+        <div className="pointer-events-none absolute bottom-5 left-5 z-1000 hidden rounded-2xl border border-white/80 bg-white/90 px-4 py-3 shadow-[0_12px_40px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:block">
           <p className="text-xs font-medium text-slate-500">Публичная карта</p>
           <p className="mt-1 text-lg font-bold tracking-[-0.02em] text-slate-950">
             {places.length} {getPlacesWord(places.length)}
@@ -209,7 +209,7 @@ export const PublicMapPage = () => {
         </div>
 
         {places.length === 0 && (
-          <div className="pointer-events-none absolute left-1/2 top-1/2 z-[1000] w-full max-w-md -translate-x-1/2 -translate-y-1/2 px-4">
+          <div className="pointer-events-none absolute left-1/2 top-1/2 z-1000 w-full max-w-md -translate-x-1/2 -translate-y-1/2 px-4">
             <div className="rounded-[28px] border border-white/80 bg-white/90 p-7 text-center shadow-[0_24px_80px_rgba(15,23,42,0.14)] backdrop-blur-xl">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ffdf3d] text-slate-950">
                 <ImageIcon className="h-6 w-6" />

@@ -111,7 +111,7 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               rows={3}
-              className="min-h-[92px] w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-950 shadow-none outline-none transition placeholder:text-slate-400 focus:border-[#ffdf3d] focus:ring-3 focus:ring-[#ffdf3d]/40"
+              className="min-h-23 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-950 shadow-none outline-none transition placeholder:text-slate-400 focus:border-[#ffdf3d] focus:ring-3 focus:ring-[#ffdf3d]/40"
             />
           </div>
 
