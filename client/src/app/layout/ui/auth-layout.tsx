@@ -81,7 +81,7 @@ export const AuthLayout = ({
         </div>
 
         <div className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-6">
-          <div className="w-full max-w-[420px]">
+          <div className="w-full max-w-105">
             <div className="mb-6 flex justify-center lg:hidden">
               <Link to="/" className="flex items-center gap-2">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-lg">
