@@ -1,12 +1,12 @@
 import { IPlace, PlacePhotoGallery, PlacePopupCard } from '@/entities/place';
 
-interface PublicPlacePopupContentProps {
+interface IPublicPlacePopupContentProps {
   place: IPlace;
 }
 
 export const PublicPlacePopupContent = ({
   place,
-}: PublicPlacePopupContentProps) => {
+}: IPublicPlacePopupContentProps) => {
   return (
     <PlacePopupCard place={place}>
       <PlacePhotoGallery photos={place.photos || []} />

@@ -1,26 +1,20 @@
 import { useMemo, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Loader2 } from 'lucide-react';
 
-import { IPlace, useDeletePlace, usePlaces } from '@/entities/place';
+import {
+  createPlaceIcon,
+  IPlace,
+  useDeletePlace,
+  usePlaces,
+} from '@/entities/place';
 import { AddPlaceForm } from '@/features/places';
 import { MapClickHandler } from './map-click-handler';
 import { PlacePopupContent } from './place-popup-content';
-
-const createPlaceIcon = () =>
-  L.divIcon({
-    className: 'wanderboard-marker',
-    html: `
-      <div class="wanderboard-marker__pin">
-        <div class="wanderboard-marker__dot"></div>
-      </div>
-    `,
-    iconSize: [34, 42],
-    iconAnchor: [17, 42],
-    popupAnchor: [0, -38],
-  });
+import { MapStats } from '@/widgets/map-stats';
+import { useTheme } from '@/shared/hooks/use-theme';
+import { getTileUrl } from '@/shared/lib/get-tile-url';
 
 export const TravelMap = () => {
   const { data: places = [], isLoading } = usePlaces();
@@ -32,6 +26,9 @@ export const TravelMap = () => {
   } | null>(null);
 
   const placeIcon = useMemo(() => createPlaceIcon(), []);
+
+  const { theme } = useTheme();
+  const tileUrl = getTileUrl(theme);
 
   if (isLoading) {
     return (
@@ -57,8 +54,9 @@ export const TravelMap = () => {
         zoomControl={true}
       >
         <TileLayer
+          key={theme}
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          url={tileUrl}
         />
 
         <MapClickHandler
@@ -86,11 +84,8 @@ export const TravelMap = () => {
         ))}
       </MapContainer>
 
-      <div className="pointer-events-none absolute bottom-5 left-5 z-1000 hidden rounded-2xl border border-white/80 bg-white/90 px-4 py-3 shadow-[0_12px_40px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:block">
-        <p className="text-xs font-medium text-slate-500">На карте</p>
-        <p className="mt-1 text-lg font-bold tracking-[-0.02em] text-slate-950">
-          {places.length} {places.length === 1 ? 'место' : 'мест'}
-        </p>
+      <div className="pointer-events-none absolute bottom-5 left-5 z-1000 hidden sm:block">
+        <MapStats />
       </div>
 
       {pendingCoords && (

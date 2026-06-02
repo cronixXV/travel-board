@@ -1,13 +1,13 @@
-import { Router, Request, Response } from 'express'
-import path from 'path'
-import fs from 'fs'
-import { Place } from '../database/models/place'
-import { PlacePhoto } from '../database/models/place-photo'
-import { authenticate } from '../middleware/authenticate'
-import { upload } from '../middleware/upload'
+import { Router, Request, Response } from 'express';
+import path from 'path';
+import fs from 'fs';
+import { Place } from '../database/models/place';
+import { PlacePhoto } from '../database/models/place-photo';
+import { authenticate } from '../middleware/authenticate';
+import { upload } from '../middleware/upload';
 import { UPLOADS_DIR } from '../config/paths';
 
-const router = Router()
+const router = Router();
 
 // POST /api/places/:id/photos — загрузить фото
 router.post(
@@ -18,16 +18,16 @@ router.post(
     try {
       const place = await Place.findOne({
         where: { id: req.params.id, userId: req.user!.userId },
-      })
+      });
 
       if (!place) {
-        res.status(404).json({ error: 'Место не найдено' })
-        return
+        res.status(404).json({ error: 'Место не найдено' });
+        return;
       }
 
       if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-        res.status(400).json({ error: 'Файлы не переданы' })
-        return
+        res.status(400).json({ error: 'Файлы не переданы' });
+        return;
       }
 
       const photos = await Promise.all(
@@ -38,15 +38,15 @@ router.post(
             originalName: file.originalname,
           })
         )
-      )
+      );
 
-      res.status(201).json({ photos })
+      res.status(201).json({ photos });
     } catch (error) {
-      console.error(error)
-      res.status(500).json({ error: 'Ошибка сервера' })
+      console.error(error);
+      res.status(500).json({ error: 'Ошибка сервера' });
     }
   }
-)
+);
 
 // DELETE /api/places/:placeId/photos/:photoId — удалить фото
 router.delete(
@@ -56,34 +56,34 @@ router.delete(
     try {
       const place = await Place.findOne({
         where: { id: req.params.placeId, userId: req.user!.userId },
-      })
+      });
 
       if (!place) {
-        res.status(404).json({ error: 'Место не найдено' })
-        return
+        res.status(404).json({ error: 'Место не найдено' });
+        return;
       }
 
       const photo = await PlacePhoto.findOne({
         where: { id: req.params.photoId, placeId: place.id },
-      })
+      });
 
       if (!photo) {
-        res.status(404).json({ error: 'Фото не найдено' })
-        return
+        res.status(404).json({ error: 'Фото не найдено' });
+        return;
       }
 
-      const filePath = path.join(UPLOADS_DIR, photo.filename)
+      const filePath = path.join(UPLOADS_DIR, photo.filename);
 
       if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath)
+        fs.unlinkSync(filePath);
       }
-      await photo.destroy()
-      res.json({ message: 'Фото удалено' })
+      await photo.destroy();
+      res.json({ message: 'Фото удалено' });
     } catch (error) {
-      console.error(error)
-      res.status(500).json({ error: 'Ошибка сервера' })
+      console.error(error);
+      res.status(500).json({ error: 'Ошибка сервера' });
     }
   }
-)
+);
 
-export default router
+export default router;

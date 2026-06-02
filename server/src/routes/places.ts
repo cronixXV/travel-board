@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express';
+
 import { Place } from '../database/models/place';
 import { PlacePhoto } from '../database/models/place-photo';
 import { User } from '../database/models/user';
@@ -7,6 +8,7 @@ import {
   UpdatePlaceSchema,
 } from '@wanderboard/shared/schemas/place.schema';
 import { authenticate } from '../middleware/authenticate';
+import { getCountryByCoords } from '../utils/geocoding';
 
 const router = Router();
 
@@ -14,7 +16,9 @@ const router = Router();
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const places = await Place.findAll({
-      where: { userId: req.user!.userId },
+      where: {
+        userId: req.user!.userId,
+      },
       include: [
         {
           model: PlacePhoto,
@@ -25,6 +29,43 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     });
 
     res.json({ places });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+// GET /api/places/public/:username — публичные места пользователя
+// Важно: этот route должен быть ДО /:id
+router.get('/public/:username', async (req: Request, res: Response) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        username: req.params.username,
+      },
+      attributes: ['id', 'username'],
+    });
+
+    if (!user) {
+      res.status(404).json({ error: 'Пользователь не найден' });
+      return;
+    }
+
+    const places = await Place.findAll({
+      where: {
+        userId: user.id,
+        isPublic: true,
+      },
+      include: [
+        {
+          model: PlacePhoto,
+          as: 'photos',
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.json({ user, places });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Ошибка сервера' });
@@ -59,41 +100,6 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/places/public/:username — публичные места пользователя
-// Важно: этот route должен быть ДО /:id
-router.get('/public/:username', async (req: Request, res: Response) => {
-  try {
-    const user = await User.findOne({
-      where: { username: req.params.username },
-      attributes: ['id', 'username'],
-    });
-
-    if (!user) {
-      res.status(404).json({ error: 'Пользователь не найден' });
-      return;
-    }
-
-    const places = await Place.findAll({
-      where: {
-        userId: user.id,
-        isPublic: true,
-      },
-      include: [
-        {
-          model: PlacePhoto,
-          as: 'photos',
-        },
-      ],
-      order: [['createdAt', 'DESC']],
-    });
-
-    res.json({ user, places });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Ошибка сервера' });
-  }
-});
-
 // POST /api/places — создать место
 router.post('/', authenticate, async (req: Request, res: Response) => {
   const parsed = CreatePlaceSchema.safeParse(req.body);
@@ -104,17 +110,28 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   }
 
   try {
-    const place = await Place.create({
+    const country = await getCountryByCoords(parsed.data.lat, parsed.data.lng);
+
+    const createdPlace = await Place.create({
       ...parsed.data,
+      country,
       userId: req.user!.userId,
     });
 
-    res.status(201).json({
-      place: {
-        ...place.toJSON(),
-        photos: [],
+    const place = await Place.findOne({
+      where: {
+        id: createdPlace.id,
+        userId: req.user!.userId,
       },
+      include: [
+        {
+          model: PlacePhoto,
+          as: 'photos',
+        },
+      ],
     });
+
+    res.status(201).json({ place });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Ошибка сервера' });
@@ -143,7 +160,20 @@ router.patch('/:id', authenticate, async (req: Request, res: Response) => {
       return;
     }
 
-    await place.update(parsed.data);
+    const shouldUpdateCountry =
+      parsed.data.lat !== undefined || parsed.data.lng !== undefined;
+
+    const nextLat = parsed.data.lat ?? place.lat;
+    const nextLng = parsed.data.lng ?? place.lng;
+
+    const country = shouldUpdateCountry
+      ? await getCountryByCoords(nextLat, nextLng)
+      : place.country;
+
+    await place.update({
+      ...parsed.data,
+      ...(shouldUpdateCountry ? { country } : {}),
+    });
 
     const updatedPlace = await Place.findOne({
       where: {

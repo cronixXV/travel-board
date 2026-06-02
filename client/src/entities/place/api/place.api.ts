@@ -1,5 +1,6 @@
 import { ICreatePlaceData, IPlace } from '@/entities/place';
 import { api } from '@/shared/api/base-api';
+import { IPublicMapResponse } from '../model/types/place.types';
 
 export const placesApi = {
   getAll: async (): Promise<IPlace[]> => {
@@ -24,9 +25,7 @@ export const placesApi = {
     await api.delete(`/api/places/${id}`);
   },
 
-  getPublic: async (
-    username: string
-  ): Promise<{ user: { id: number; username: string }; places: IPlace[] }> => {
+  getPublic: async (username: string): Promise<IPublicMapResponse> => {
     const response = await api.get(`/api/places/public/${username}`);
     return response.data;
   },

@@ -11,16 +11,16 @@ const PhotoUploader = lazy(() =>
   }))
 );
 
-interface PlacePopupContentProps {
+interface IPlacePopupContentProps {
   place: IPlace;
   onDelete: (id: number) => void;
 }
 
 const PhotoUploaderFallback = () => {
   return (
-    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5">
-      <div className="h-4 w-28 animate-pulse rounded-full bg-slate-200" />
-      <div className="mt-3 h-3 w-44 animate-pulse rounded-full bg-slate-200" />
+    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 dark:border-white/10 dark:bg-slate-900/70">
+      <div className="h-4 w-28 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+      <div className="mt-3 h-3 w-44 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
     </div>
   );
 };
@@ -28,7 +28,7 @@ const PhotoUploaderFallback = () => {
 export const PlacePopupContent = ({
   place,
   onDelete,
-}: PlacePopupContentProps) => {
+}: IPlacePopupContentProps) => {
   const map = useMap();
   const { mutate: updatePlace, isPending: isUpdatingPublic } = useUpdatePlace();
 
@@ -54,7 +54,7 @@ export const PlacePopupContent = ({
           <button
             type="button"
             onClick={handleDelete}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-red-500 transition hover:bg-red-100"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-red-500 transition hover:bg-red-100 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-950/50"
             aria-label="Удалить место"
           >
             <Trash2 className="h-4 w-4" />
@@ -63,7 +63,7 @@ export const PlacePopupContent = ({
           <button
             type="button"
             onClick={() => map.closePopup()}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
             aria-label="Закрыть"
           >
             <X className="h-5 w-5" />
@@ -71,9 +71,9 @@ export const PlacePopupContent = ({
         </>
       }
     >
-      <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-4 py-3">
+      <div className="flex items-center justify-between gap-3 rounded-2xl wb-muted-card px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm dark:bg-slate-950 dark:text-slate-300">
             {place.isPublic ? (
               <Globe2 className="h-4 w-4" />
             ) : (
@@ -82,10 +82,10 @@ export const PlacePopupContent = ({
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-slate-950">
+            <p className="text-sm font-semibold text-slate-950 dark:text-slate-50">
               {place.isPublic ? 'Публичное место' : 'Скрытое место'}
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               {place.isPublic ? 'Будет видно по ссылке' : 'Видно только вам'}
             </p>
           </div>
@@ -95,13 +95,13 @@ export const PlacePopupContent = ({
           type="button"
           onClick={handleTogglePublic}
           disabled={isUpdatingPublic}
-          className={`relative h-7 w-12 shrink-0 rounded-full transition ${
-            place.isPublic ? 'bg-[#ffdf3d]' : 'bg-slate-200'
-          } disabled:opacity-60`}
+          className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-60 ${
+            place.isPublic ? 'bg-[#ffdf3d]' : 'bg-slate-200 dark:bg-slate-700'
+          }`}
           aria-label="Изменить публичность места"
         >
           <span
-            className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition ${
+            className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition dark:bg-slate-50 ${
               place.isPublic ? 'left-6' : 'left-1'
             }`}
           />
