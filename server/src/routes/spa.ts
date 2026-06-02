@@ -1,8 +1,13 @@
-import { Request, Response, Router } from 'express';
+import type { Request, Response } from 'express';
+import { Router } from 'express';
 import { Place } from '../database/models/place';
 import { PlacePhoto } from '../database/models/place-photo';
 import { User } from '../database/models/user';
 import { renderHtmlWithMeta } from '../utils/render-html-with-meta';
+
+type TPublicPlace = Place & {
+  photos?: PlacePhoto[];
+};
 
 const router = Router();
 
@@ -74,10 +79,10 @@ router.get('/map/:username', async (req: Request, res: Response) => {
       order: [['createdAt', 'DESC']],
     });
 
-    const placesJson = places.map((place) => place.toJSON() as Place);
+    const placesJson = places.map((place) => place.toJSON() as TPublicPlace);
 
     const firstPhoto = placesJson
-      .flatMap((place: any) => place.photos || [])
+      .flatMap((place) => place.photos ?? [])
       .find(Boolean);
 
     const title = `@${user.username} · Wanderboard`;
@@ -107,7 +112,7 @@ router.get('/map/:username', async (req: Request, res: Response) => {
   }
 });
 
-router.get('*', async (_: Request, res: Response) => {
+router.get('*', async (_req: Request, res: Response) => {
   const html = await renderHtmlWithMeta(getDefaultMeta());
   res.type('html').send(html);
 });

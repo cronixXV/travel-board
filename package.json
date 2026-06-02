@@ -8,24 +8,25 @@
   ],
   "packageManager": "npm@10.0.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "dev": "concurrently -n server,client -c cyan,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
     "build": "npm run build -w shared && npm run build -w server && npm run build -w client",
     "typecheck": "npm run typecheck -w shared && npm run typecheck -w server && npm run typecheck -w client",
-    "lint": "eslint \"{client,server,shared}/src/**/*.{ts,tsx}\"",
+    "lint": "npm run lint:root && npm run lint -w client",
+    "lint:root": "eslint \"server/src/**/*.{ts,tsx}\" \"shared/**/*.{ts,tsx}\" \"server/**/*.{js,cjs}\" \"*.config.{js,cjs}\"",
     "format": "prettier --write \"{client,server,shared}/src/**/*.{ts,tsx,json,css,md}\"",
     "format:check": "prettier --check \"{client,server,shared}/src/**/*.{ts,tsx,json,css,md}\"",
     "clean": "rm -rf client/dist server/dist shared/dist"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
+    "@eslint/js": "^10.0.1",
     "concurrently": "^8.2.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "prettier": "^3.2.0"
+    "eslint": "^10.4.1",
+    "globals": "^17.6.0",
+    "prettier": "^3.2.0",
+    "typescript-eslint": "^8.60.1"
   },
   "dependencies": {
     "react-dropzone": "^14.3.8"

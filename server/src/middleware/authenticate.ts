@@ -1,29 +1,21 @@
-import { Request, Response, NextFunction } from 'express'
-import { verifyAccessToken, TokenPayload } from '../utils/jwt'
+import type { RequestHandler } from 'express';
+import { verifyAccessToken } from '../utils/jwt';
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: TokenPayload
-    }
-  }
-}
-
-export const authenticate = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization
+export const authenticate: RequestHandler = (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'Токен не предоставлен' })
-    return
+    res.status(401).json({ error: 'Токен не предоставлен' });
+    return;
   }
 
-  const token = authHeader.split(' ')[1]
+  const token = authHeader.split(' ')[1];
 
   try {
-    const payload = verifyAccessToken(token)
-    req.user = payload
-    next()
+    const payload = verifyAccessToken(token);
+    req.user = payload;
+    next();
   } catch {
-    res.status(401).json({ error: 'Токен недействителен или истёк' })
+    res.status(401).json({ error: 'Токен недействителен или истёк' });
   }
-}
+};

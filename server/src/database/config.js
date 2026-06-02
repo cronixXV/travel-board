@@ -1,4 +1,6 @@
-require('dotenv').config({ path: require('path').resolve(process.cwd(), '../.env') })
+require('dotenv').config({
+  path: require('path').resolve(process.cwd(), '../.env'),
+});
 
 module.exports = {
   development: {
@@ -11,7 +13,7 @@ module.exports = {
     dialect: 'postgres',
     logging: false,
     dialectOptions: {
-      ssl: { require: true, rejectUnauthorized: false },
+      ssl: { require: true, rejectUnauthorized: true },
     },
   },
-}
+};
