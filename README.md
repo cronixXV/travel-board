@@ -5,7 +5,9 @@
 ## Стек
 
 **Фронтенд** — React + Vite, TanStack Query, React Leaflet, shadcn/ui + Tailwind, FSD архитектура
+
 **Бэкенд** — Express + TypeScript, Sequelize + PostgreSQL, JWT auth, multer
+
 **Инфраструктура** — npm workspaces (monorepo), Docker Compose
 
 ## Быстрый старт
