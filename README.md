@@ -66,5 +66,4 @@ docker-compose up -d
 
 # Всё в Docker с hot reload
 docker-compose -f docker-compose.dev.yml up
-
 ```
