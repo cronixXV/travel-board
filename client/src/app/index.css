@@ -454,8 +454,8 @@
 }
 
 .leaflet-container a.leaflet-popup-close-button {
-  top: 12px;
-  right: 12px;
+  top: 12px !important;
+  right: 12px !important;
   color: var(--muted-foreground);
   font-size: 20px;
 }

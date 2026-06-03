@@ -6,9 +6,11 @@ COPY package*.json ./
 COPY client/package*.json ./client/
 COPY shared/package*.json ./shared/
 
-RUN npm install
+RUN npm ci
 
 COPY shared/ ./shared/
 COPY client/ ./client/
 
-CMD ["npm", "run", "dev", "-w", "client", "--", "--host"]
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "-w", "client", "--", "--host", "0.0.0.0"]
