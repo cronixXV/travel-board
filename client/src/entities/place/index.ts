@@ -4,6 +4,7 @@ export type {
   ICreatePlaceData,
   IPublicMapUser,
   IPublicMapResponse,
+  TUpdatePlaceData,
 } from './model/types/place.types';
 
 export { placesApi } from './api/place.api';

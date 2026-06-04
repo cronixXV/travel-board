@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ICreatePlaceData, IPlace, placesApi } from '@/entities/place';
+import {
+  ICreatePlaceData,
+  IPlace,
+  TUpdatePlaceData,
+  placesApi,
+} from '@/entities/place';
 
 export const usePlaces = () => {
   return useQuery<IPlace[]>({
@@ -25,7 +30,7 @@ export const useUpdatePlace = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { id: number; data: Partial<ICreatePlaceData> }) =>
+    mutationFn: (data: { id: number; data: TUpdatePlaceData }) =>
       placesApi.update(data.id, data.data),
 
     onSuccess: (updatedPlace) => {

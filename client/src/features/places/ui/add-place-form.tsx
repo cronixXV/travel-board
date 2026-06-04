@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Loader2, MapPin, Navigation, X } from 'lucide-react';
+import {
+  CalendarDays,
+  Globe2,
+  Loader2,
+  LockKeyhole,
+  MapPin,
+  Navigation,
+  X,
+} from 'lucide-react';
 
 import { useCreatePlace } from '@/entities/place';
 import { Button } from '@/shared/ui/button/ui/button';
@@ -20,8 +28,11 @@ const inputClassName =
 
 export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
   const { mutate: createPlace, isPending } = useCreatePlace();
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [visitedAt, setVisitedAt] = useState('');
+  const [isPublic, setIsPublic] = useState(false);
 
   const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -31,15 +42,18 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
     createPlace(
       {
         name: name.trim(),
-        description: description.trim(),
+        description: description.trim() || null,
+        visitedAt: visitedAt || null,
         lat,
         lng,
-        isPublic: false,
+        isPublic,
       },
       {
         onSuccess: () => {
           setName('');
           setDescription('');
+          setVisitedAt('');
+          setIsPublic(false);
           onClose();
         },
       }
@@ -113,6 +127,60 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
               rows={3}
               className="min-h-23 w-full resize-none rounded-2xl border wb-input px-4 py-3 text-sm leading-6 shadow-none outline-none transition placeholder:text-muted-foreground focus:border-[#ffdf3d] focus:ring-3 focus:ring-[#ffdf3d]/40"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="place-visited-at" className={labelClassName}>
+              Дата посещения
+            </Label>
+
+            <div className="relative">
+              <CalendarDays className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+
+              <Input
+                id="place-visited-at"
+                type="date"
+                value={visitedAt}
+                onChange={(event) => setVisitedAt(event.target.value)}
+                className="h-12 rounded-2xl wb-input pl-12 pr-4 text-base shadow-none transition-colors focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 rounded-2xl wb-muted-card px-4 py-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm dark:bg-slate-950/70 dark:text-slate-300">
+                {isPublic ? (
+                  <Globe2 className="h-4 w-4" />
+                ) : (
+                  <LockKeyhole className="h-4 w-4" />
+                )}
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-slate-950 dark:text-slate-50">
+                  {isPublic ? 'Публичное место' : 'Скрытое место'}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {isPublic ? 'Будет видно по ссылке' : 'Видно только вам'}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsPublic((prev) => !prev)}
+              className={`relative h-7 w-12 shrink-0 rounded-full transition ${
+                isPublic ? 'bg-[#ffdf3d]' : 'bg-slate-200 dark:bg-slate-700'
+              }`}
+              aria-label="Изменить публичность места"
+            >
+              <span
+                className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition ${
+                  isPublic ? 'left-6' : 'left-1'
+                }`}
+              />
+            </button>
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-1">

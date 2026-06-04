@@ -23,12 +23,14 @@ export interface IPlace {
 
 export interface ICreatePlaceData {
   name: string;
+  description?: string | null;
   lat: number;
   lng: number;
-  description?: string;
-  visitedAt?: string;
+  visitedAt?: string | null;
   isPublic?: boolean;
 }
+
+export type TUpdatePlaceData = Partial<ICreatePlaceData>;
 
 export interface IPublicMapUser {
   id: number;

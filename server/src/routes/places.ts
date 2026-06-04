@@ -160,11 +160,11 @@ router.patch('/:id', authenticate, async (req: Request, res: Response) => {
       return;
     }
 
-    const shouldUpdateCountry =
-      parsed.data.lat !== undefined || parsed.data.lng !== undefined;
-
     const nextLat = parsed.data.lat ?? place.lat;
     const nextLng = parsed.data.lng ?? place.lng;
+
+    const shouldUpdateCountry =
+      parsed.data.lat !== undefined || parsed.data.lng !== undefined;
 
     const country = shouldUpdateCountry
       ? await getCountryByCoords(nextLat, nextLng)
@@ -172,7 +172,7 @@ router.patch('/:id', authenticate, async (req: Request, res: Response) => {
 
     await place.update({
       ...parsed.data,
-      ...(shouldUpdateCountry ? { country } : {}),
+      country,
     });
 
     const updatedPlace = await Place.findOne({

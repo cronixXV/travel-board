@@ -1,6 +1,9 @@
 import { ICreatePlaceData, IPlace } from '@/entities/place';
 import { api } from '@/shared/api/base-api';
-import { IPublicMapResponse } from '../model/types/place.types';
+import {
+  IPublicMapResponse,
+  TUpdatePlaceData,
+} from '../model/types/place.types';
 
 export const placesApi = {
   getAll: async (): Promise<IPlace[]> => {
@@ -13,10 +16,7 @@ export const placesApi = {
     return response.data.place;
   },
 
-  update: async (
-    id: number,
-    data: Partial<ICreatePlaceData>
-  ): Promise<IPlace> => {
+  update: async (id: number, data: TUpdatePlaceData): Promise<IPlace> => {
     const response = await api.patch(`/api/places/${id}`, data);
     return response.data.place;
   },

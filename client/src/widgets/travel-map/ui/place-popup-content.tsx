@@ -1,9 +1,10 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useMap } from 'react-leaflet';
-import { Globe2, LockKeyhole, Trash2, X } from 'lucide-react';
+import { Globe2, LockKeyhole, Pencil, Trash2, X } from 'lucide-react';
 
 import { IPlace, useUpdatePlace } from '@/entities/place';
 import { PlacePopupCard } from '@/entities/place/ui/place-popup-card';
+import { EditPlaceForm } from '@/features/places/ui/edit-place-form';
 
 const PhotoUploader = lazy(() =>
   import('@/features/photos/ui/photo-uploader').then((module) => ({
@@ -18,8 +19,8 @@ interface IPlacePopupContentProps {
 
 const PhotoUploaderFallback = () => {
   return (
-    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 dark:border-white/10 dark:bg-slate-900/70">
-      <div className="h-4 w-28 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 dark:border-white/10 dark:bg-white/5">
+      <div className="h-4 w-28 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
       <div className="mt-3 h-3 w-44 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
     </div>
   );
@@ -31,6 +32,7 @@ export const PlacePopupContent = ({
 }: IPlacePopupContentProps) => {
   const map = useMap();
   const { mutate: updatePlace, isPending: isUpdatingPublic } = useUpdatePlace();
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleDelete = () => {
     onDelete(place.id);
@@ -46,6 +48,17 @@ export const PlacePopupContent = ({
     });
   };
 
+  if (isEditing) {
+    return (
+      <EditPlaceForm
+        place={place}
+        onCancel={() => setIsEditing(false)}
+        onClose={() => map.closePopup()}
+        onSuccess={() => setIsEditing(false)}
+      />
+    );
+  }
+
   return (
     <PlacePopupCard
       place={place}
@@ -53,8 +66,17 @@ export const PlacePopupContent = ({
         <>
           <button
             type="button"
+            onClick={() => setIsEditing(true)}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-slate-100"
+            aria-label="Редактировать место"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
             onClick={handleDelete}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-red-500 transition hover:bg-red-100 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-950/50"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-red-500 transition hover:bg-red-100 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
             aria-label="Удалить место"
           >
             <Trash2 className="h-4 w-4" />
@@ -63,7 +85,7 @@ export const PlacePopupContent = ({
           <button
             type="button"
             onClick={() => map.closePopup()}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-slate-100"
             aria-label="Закрыть"
           >
             <X className="h-5 w-5" />
@@ -71,9 +93,9 @@ export const PlacePopupContent = ({
         </>
       }
     >
-      <div className="flex items-center justify-between gap-3 rounded-2xl wb-muted-card px-4 py-3">
+      <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-4 py-3 dark:bg-white/5">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm dark:bg-slate-950 dark:text-slate-300">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm dark:bg-slate-950/70 dark:text-slate-300">
             {place.isPublic ? (
               <Globe2 className="h-4 w-4" />
             ) : (
@@ -95,13 +117,13 @@ export const PlacePopupContent = ({
           type="button"
           onClick={handleTogglePublic}
           disabled={isUpdatingPublic}
-          className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-60 ${
+          className={`relative h-7 w-12 shrink-0 rounded-full transition ${
             place.isPublic ? 'bg-[#ffdf3d]' : 'bg-slate-200 dark:bg-slate-700'
-          }`}
+          } disabled:opacity-60`}
           aria-label="Изменить публичность места"
         >
           <span
-            className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition dark:bg-slate-50 ${
+            className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition ${
               place.isPublic ? 'left-6' : 'left-1'
             }`}
           />
