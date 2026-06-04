@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "concurrently -n server,client -c cyan,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
     "build": "npm run build -w shared && npm run build -w server && npm run build -w client",
-    "typecheck": "npm run typecheck -w shared && npm run typecheck -w server && npm run typecheck -w client",
+    "typecheck": "npm run typecheck -w shared && npm run build -w shared && npm run typecheck -w server && npm run typecheck -w client",
     "lint": "npm run lint:root && npm run lint -w client",
     "lint:root": "eslint \"server/src/**/*.{ts,tsx}\" \"shared/**/*.{ts,tsx}\" \"server/**/*.{js,cjs}\" \"*.config.{js,cjs}\"",
     "format": "prettier --write \"{client,server,shared}/src/**/*.{ts,tsx,json,css,md}\"",

@@ -30,6 +30,9 @@ jobs:
       - name: Typecheck shared
         run: npm run typecheck -w shared
 
+      - name: Build shared for workspace consumers
+        run: npm run build -w shared
+
       - name: Typecheck server
         run: npm run typecheck -w server
 
