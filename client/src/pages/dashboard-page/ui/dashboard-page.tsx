@@ -24,8 +24,8 @@ export const DashboardPage = () => {
   const { data, isLoading, isFetching } = usePlacesWithMeta(filters);
 
   const places = data?.places || [];
-  const totalCount = data?.meta.total ?? places.length;
-  const filteredCount = data?.meta.filtered ?? places.length;
+  const totalCount = data?.meta?.total ?? places.length;
+  const filteredCount = data?.meta?.filtered ?? places.length;
 
   const handleResetFilters = () => {
     setSearch('');

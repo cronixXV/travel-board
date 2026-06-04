@@ -20,7 +20,19 @@ export const placesApi = {
       },
     });
 
-    return response.data;
+    const places = response.data.places || [];
+
+    return {
+      places,
+      meta: response.data.meta || {
+        total: places.length,
+        filtered: places.length,
+        filters: {
+          search: filters?.search?.trim() || '',
+          visibility: filters?.visibility || 'all',
+        },
+      },
+    };
   },
 
   create: async (data: ICreatePlaceData): Promise<IPlace> => {
