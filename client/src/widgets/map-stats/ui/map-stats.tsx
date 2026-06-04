@@ -1,14 +1,20 @@
 import { Globe2, Images, MapPin } from 'lucide-react';
 
-import { usePlaces } from '@/entities/place';
+import { IPlace, usePlaces } from '@/entities/place';
 import {
   getCountriesWord,
   getPhotosWord,
   getPlacesWord,
 } from '@/shared/lib/get-word-helpers';
 
-export const MapStats = () => {
-  const { data: places = [] } = usePlaces();
+interface IMapStatsProps {
+  places?: IPlace[];
+}
+
+export const MapStats = ({ places: placesProp }: IMapStatsProps) => {
+  const { data: placesFromQuery = [] } = usePlaces();
+
+  const places = placesProp ?? placesFromQuery;
 
   const stats = {
     places: places.length,

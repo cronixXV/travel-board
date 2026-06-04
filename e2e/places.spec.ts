@@ -1,6 +1,8 @@
+/// <reference types="node" />
+
 import path from 'path';
 import { expect, test, type Page } from '@playwright/test';
-import { createTestUser, registerUserViaApi } from './helpers/api';
+import { API_URL, createTestUser, registerUserViaApi } from './helpers/api';
 
 const loginViaUi = async (
   page: Page,
@@ -90,8 +92,18 @@ test.describe('Places', () => {
 
     await fileInput.setInputFiles(path.resolve('e2e/fixtures/test-photo.png'));
 
-    await uploadResponse;
+    const response = await uploadResponse;
+    const body = await response.json();
 
-    await expect(page.locator('.leaflet-popup img')).toBeVisible();
+    const filename =
+      body.photo?.filename || body.photos?.[0]?.filename || body.filename;
+
+    expect(filename).toBeTruthy();
+
+    const uploadedFileResponse = await request.get(
+      `${API_URL}/uploads/${filename}`
+    );
+
+    expect(uploadedFileResponse.ok()).toBeTruthy();
   });
 });

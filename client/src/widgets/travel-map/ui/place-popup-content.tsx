@@ -3,8 +3,8 @@ import { useMap } from 'react-leaflet';
 import { Globe2, LockKeyhole, Pencil, Trash2, X } from 'lucide-react';
 
 import { IPlace, useUpdatePlace } from '@/entities/place';
-import { PlacePopupCard } from '@/entities/place/ui/place-popup-card';
-import { EditPlaceForm } from '@/features/places/ui/edit-place-form';
+import { PlacePopupCard } from '@/entities/place';
+import { EditPlaceForm } from '@/features/places';
 
 const PhotoUploader = lazy(() =>
   import('@/features/photos/ui/photo-uploader').then((module) => ({

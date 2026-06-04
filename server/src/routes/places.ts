@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-
+import { Op, WhereOptions } from 'sequelize';
 import { Place } from '../database/models/place';
 import { PlacePhoto } from '../database/models/place-photo';
 import { User } from '../database/models/user';
@@ -12,13 +12,70 @@ import { getCountryByCoords } from '../utils/geocoding';
 
 const router = Router();
 
-// GET /api/places — все места текущего пользователя
+type TVisibilityFilter = 'all' | 'public' | 'private';
+
+const getVisibilityFilter = (value: unknown): TVisibilityFilter => {
+  if (value === 'public' || value === 'private' || value === 'all') {
+    return value;
+  }
+
+  return 'all';
+};
+
+const getSearchQuery = (value: unknown) => {
+  if (typeof value !== 'string') {
+    return '';
+  }
+
+  return value.trim();
+};
+
+// GET /api/places — места текущего пользователя с поиском и фильтрацией
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
+    const search = getSearchQuery(req.query.search);
+    const visibility = getVisibilityFilter(req.query.visibility);
+
+    const where: WhereOptions = {
+      userId: req.user!.userId,
+    };
+
+    if (visibility === 'public') {
+      Object.assign(where, {
+        isPublic: true,
+      });
+    }
+
+    if (visibility === 'private') {
+      Object.assign(where, {
+        isPublic: false,
+      });
+    }
+
+    if (search) {
+      Object.assign(where, {
+        [Op.or]: [
+          {
+            name: {
+              [Op.iLike]: `%${search}%`,
+            },
+          },
+          {
+            country: {
+              [Op.iLike]: `%${search}%`,
+            },
+          },
+          {
+            description: {
+              [Op.iLike]: `%${search}%`,
+            },
+          },
+        ],
+      });
+    }
+
     const places = await Place.findAll({
-      where: {
-        userId: req.user!.userId,
-      },
+      where,
       include: [
         {
           model: PlacePhoto,
@@ -28,7 +85,23 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       order: [['createdAt', 'DESC']],
     });
 
-    res.json({ places });
+    const totalPlaces = await Place.count({
+      where: {
+        userId: req.user!.userId,
+      },
+    });
+
+    res.json({
+      places,
+      meta: {
+        total: totalPlaces,
+        filtered: places.length,
+        filters: {
+          search,
+          visibility,
+        },
+      },
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Ошибка сервера' });

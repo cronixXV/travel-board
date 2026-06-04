@@ -1,14 +1,26 @@
-import { ICreatePlaceData, IPlace } from '@/entities/place';
-import { api } from '@/shared/api/base-api';
 import {
+  ICreatePlaceData,
+  IPlace,
+  IPlaceFilters,
+  IPlacesResponse,
   IPublicMapResponse,
   TUpdatePlaceData,
-} from '../model/types/place.types';
+} from '@/entities/place';
+import { api } from '@/shared/api/base-api';
 
 export const placesApi = {
-  getAll: async (): Promise<IPlace[]> => {
-    const response = await api.get('/api/places');
-    return response.data.places;
+  getAll: async (filters?: IPlaceFilters): Promise<IPlacesResponse> => {
+    const response = await api.get('/api/places', {
+      params: {
+        search: filters?.search?.trim() || undefined,
+        visibility:
+          filters?.visibility && filters.visibility !== 'all'
+            ? filters.visibility
+            : undefined,
+      },
+    });
+
+    return response.data;
   },
 
   create: async (data: ICreatePlaceData): Promise<IPlace> => {

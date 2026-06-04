@@ -5,6 +5,9 @@ export type {
   IPublicMapUser,
   IPublicMapResponse,
   TUpdatePlaceData,
+  TPlaceVisibilityFilter,
+  IPlaceFilters,
+  IPlacesResponse,
 } from './model/types/place.types';
 
 export { placesApi } from './api/place.api';
@@ -15,6 +18,7 @@ export {
   useCreatePlace,
   useUpdatePlace,
   useDeletePlace,
+  usePlacesWithMeta,
 } from './hooks/use-places';
 export { useUploadPhotos, useRemovePhoto } from './hooks/use-photos';
 

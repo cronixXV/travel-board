@@ -32,6 +32,25 @@ export interface ICreatePlaceData {
 
 export type TUpdatePlaceData = Partial<ICreatePlaceData>;
 
+export type TPlaceVisibilityFilter = 'all' | 'public' | 'private';
+
+export interface IPlaceFilters {
+  search?: string;
+  visibility?: TPlaceVisibilityFilter;
+}
+
+export interface IPlacesResponse {
+  places: IPlace[];
+  meta: {
+    total: number;
+    filtered: number;
+    filters: {
+      search: string;
+      visibility: TPlaceVisibilityFilter;
+    };
+  };
+}
+
 export interface IPublicMapUser {
   id: number;
   username: string;

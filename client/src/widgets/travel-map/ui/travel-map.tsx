@@ -3,12 +3,7 @@ import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Loader2 } from 'lucide-react';
 
-import {
-  createPlaceIcon,
-  IPlace,
-  useDeletePlace,
-  usePlaces,
-} from '@/entities/place';
+import { createPlaceIcon, IPlace, useDeletePlace } from '@/entities/place';
 import { AddPlaceForm } from '@/features/places';
 import { MapClickHandler } from './map-click-handler';
 import { PlacePopupContent } from './place-popup-content';
@@ -16,8 +11,17 @@ import { MapStats } from '@/widgets/map-stats';
 import { useTheme } from '@/shared/hooks/use-theme';
 import { getTileUrl } from '@/shared/lib/get-tile-url';
 
-export const TravelMap = () => {
-  const { data: places = [], isLoading } = usePlaces();
+interface ITravelMapProps {
+  places: IPlace[];
+  isLoading: boolean;
+  isFetching?: boolean;
+}
+
+export const TravelMap = ({
+  places,
+  isLoading,
+  isFetching = false,
+}: ITravelMapProps) => {
   const { mutate: deletePlace } = useDeletePlace();
 
   const [pendingCoords, setPendingCoords] = useState<{
@@ -32,10 +36,11 @@ export const TravelMap = () => {
 
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center bg-[#f6f5ef]">
-        <div className="flex items-center gap-3 rounded-full border border-white/80 bg-white/90 px-5 py-3 shadow-[0_16px_50px_rgba(15,23,42,0.12)] backdrop-blur-xl">
-          <Loader2 className="h-5 w-5 animate-spin text-slate-950" />
-          <span className="text-sm font-semibold text-slate-700">
+      <div className="flex h-full items-center justify-center bg-[#f6f5ef] dark:bg-slate-950">
+        <div className="flex items-center gap-3 rounded-full border border-white/80 bg-white/90 px-5 py-3 shadow-[0_16px_50px_rgba(15,23,42,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/90">
+          <Loader2 className="h-5 w-5 animate-spin text-slate-950 dark:text-slate-50" />
+
+          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
             Загружаем карту...
           </span>
         </div>
@@ -85,8 +90,14 @@ export const TravelMap = () => {
       </MapContainer>
 
       <div className="pointer-events-none absolute bottom-5 left-5 z-1000 hidden sm:block">
-        <MapStats />
+        <MapStats places={places} />
       </div>
+
+      {isFetching && (
+        <div className="pointer-events-none absolute bottom-5 right-5 z-1000 hidden rounded-full wb-panel px-4 py-2 text-xs font-bold text-slate-500 sm:block dark:text-slate-300">
+          Обновляем...
+        </div>
+      )}
 
       {pendingCoords && (
         <div className="absolute bottom-6 left-1/2 z-1000 w-full max-w-95 -translate-x-1/2 px-4">

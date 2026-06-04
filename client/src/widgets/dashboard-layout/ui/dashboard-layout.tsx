@@ -14,6 +14,7 @@ import { ThemeToggle } from '@/shared/ui/theme-toggle/ui/theme-toggle';
 
 interface IDashboardLayoutProps {
   children: ReactNode;
+  afterUserSlot?: ReactNode;
 }
 
 const headerPanelClassName =
@@ -22,7 +23,10 @@ const headerPanelClassName =
 const actionButtonClassName =
   'h-10 rounded-full border-slate-200 bg-white px-4 font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900/90 dark:text-slate-100 dark:hover:bg-slate-800';
 
-export const DashboardLayout = ({ children }: IDashboardLayoutProps) => {
+export const DashboardLayout = ({
+  children,
+  afterUserSlot,
+}: IDashboardLayoutProps) => {
   const { data: user } = useCurrentUser();
   const { mutate: logout } = useLogout();
   const [copied, setCopied] = useState(false);
@@ -84,6 +88,8 @@ export const DashboardLayout = ({ children }: IDashboardLayoutProps) => {
                   @{user?.username || 'user'}
                 </span>
               </div>
+
+              {afterUserSlot}
 
               <ThemeToggle />
 
