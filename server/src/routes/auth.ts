@@ -37,13 +37,13 @@ router.post('/register', authLimiter, async (req: Request, res: Response) => {
   try {
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      res.status(409).json({ error: 'Email уже занят' });
+      res.status(409).json({ error: 'Этот email уже занят' });
       return;
     }
 
     const existingUsername = await User.findOne({ where: { username } });
     if (existingUsername) {
-      res.status(409).json({ error: 'Username уже занят' });
+      res.status(409).json({ error: 'Этот username уже занят' });
       return;
     }
 
@@ -140,8 +140,13 @@ router.post('/refresh', refreshLimiter, async (req: Request, res: Response) => {
   }
 });
 
-router.post('/logout', (_req: Request, res: Response) => {
-  res.clearCookie('refreshToken', REFRESH_COOKIE_OPTIONS);
+router.post('/logout', (req: Request, res: Response) => {
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+  });
+
   res.json({ message: 'Вышли успешно' });
 });
 

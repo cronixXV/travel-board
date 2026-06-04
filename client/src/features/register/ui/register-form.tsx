@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { isAxiosError } from 'axios';
 import { AlertCircle, ArrowRight, LockKeyhole, Mail, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -35,13 +36,25 @@ export const RegisterForm = () => {
     resolver: zodResolver(RegisterSchema),
   });
 
-  const onSubmit = (data: RegisterInput) => {
-    register_(data, {
-      onSuccess: () => navigate('/'),
-    });
-  };
+  const serverErrorMessage =
+    isAxiosError<{ error?: string }>(error) && error.response?.data?.error
+      ? error.response.data.error
+      : 'Не удалось создать аккаунт. Попробуйте позже.';
 
   const hasServerError = Boolean(error);
+
+  const onSubmit = (data: RegisterInput) => {
+    register_(
+      {
+        ...data,
+        email: data.email.trim().toLowerCase(),
+        username: data.username.trim().toLowerCase(),
+      },
+      {
+        onSuccess: () => navigate('/'),
+      }
+    );
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -62,6 +75,11 @@ export const RegisterForm = () => {
             {...register('username')}
           />
         </div>
+
+        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+          Можно использовать латинские буквы, цифры и _. В ссылке username будет
+          в нижнем регистре.
+        </p>
 
         {errors.username && (
           <p className={errorClassName}>
@@ -128,9 +146,7 @@ export const RegisterForm = () => {
       {error && (
         <div className="flex items-start gap-3 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-500/20 dark:bg-red-950/30 dark:text-red-300">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-          <p>
-            Не удалось создать аккаунт. Попробуйте другой email или username.
-          </p>
+          <p>{serverErrorMessage}</p>
         </div>
       )}
 

@@ -47,7 +47,7 @@ export const PlacesSearchButton = ({
       <button
         type="button"
         onClick={() => onOpenChange(!isOpen)}
-        className={`relative flex h-11 items-center gap-2 rounded-full px-4 text-sm font-bold transition ${
+        className={`relative flex h-10 w-10 items-center justify-center rounded-full p-0 text-sm font-bold transition sm:w-auto sm:px-4 ${
           hasFilters || isOpen
             ? 'bg-[#ffdf3d] text-slate-950 shadow-sm'
             : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10'
@@ -60,7 +60,7 @@ export const PlacesSearchButton = ({
           <Search className="h-4 w-4" />
         )}
 
-        <span className="hidden lg:inline">
+        <span className="hidden lg:ml-2 lg:inline">
           {hasFilters ? `${filteredCount}/${totalCount}` : 'Поиск'}
         </span>
 
@@ -70,7 +70,7 @@ export const PlacesSearchButton = ({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-14 z-1200 w-[min(22rem,calc(100vw-2rem))] rounded-[28px] wb-card p-3 shadow-[0_20px_70px_rgba(15,23,42,0.22)] ring-1 ring-slate-200/70 backdrop-blur-xl dark:ring-white/10">
+        <div className="fixed left-3 right-3 top-20 z-[1400] rounded-[28px] wb-card p-3 shadow-[0_20px_70px_rgba(15,23,42,0.22)] ring-1 ring-slate-200/70 backdrop-blur-xl sm:absolute sm:left-auto sm:right-0 sm:top-14 sm:w-[22rem] dark:ring-white/10">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <p className="text-sm font-bold text-slate-950 dark:text-slate-50">
