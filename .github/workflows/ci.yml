@@ -71,3 +71,90 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           VITE_PUBLIC_APP_URL: ${{ secrets.VITE_PUBLIC_APP_URL }}
         run: npm run build -w client
+
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    needs: build
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: wanderboard
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d wanderboard"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      NODE_ENV: test
+      PORT: 3000
+
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/wanderboard
+
+      JWT_SECRET: test_jwt_secret_minimum_32_chars_123456789
+      JWT_REFRESH_SECRET: test_refresh_secret_minimum_32_chars_123456789
+
+      CLIENT_URL: http://localhost:5173
+      APP_PUBLIC_URL: http://localhost:5173
+      API_PUBLIC_URL: http://localhost:3000
+
+      VITE_API_URL: http://localhost:3000
+      VITE_PUBLIC_APP_URL: http://localhost:5173
+
+      UPLOADS_DIR: ./uploads
+      CLIENT_DIST_PATH: ../client/dist
+
+      DISABLE_RATE_LIMIT: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build shared
+        run: npm run build -w shared
+
+      - name: Run migrations
+        run: npm run migrate -w server
+
+      - name: Create uploads directory
+        run: mkdir -p uploads
+
+      - name: Run E2E tests
+        run: npm run e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Upload Playwright test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore

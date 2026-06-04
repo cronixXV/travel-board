@@ -6,6 +6,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "migrate": "sequelize-cli db:migrate",
+    "migrate:status": "sequelize-cli db:migrate:status",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

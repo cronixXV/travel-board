@@ -1,25 +1,32 @@
-require('dotenv').config({
-  path: require('path').resolve(process.cwd(), '../.env'),
+const path = require('path');
+const dotenv = require('dotenv');
+
+dotenv.config({
+  path: path.resolve(__dirname, '../../../.env'),
 });
 
-const sslOptions = {
-  require: true,
-  rejectUnauthorized: false,
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is not defined');
+}
+
+const baseConfig = {
+  use_env_variable: 'DATABASE_URL',
+  dialect: 'postgres',
+  logging: false,
 };
 
 module.exports = {
-  development: {
-    url: process.env.DATABASE_URL,
-    dialect: 'postgres',
-    logging: false,
-  },
+  development: baseConfig,
+
+  test: baseConfig,
 
   production: {
-    url: process.env.DATABASE_URL,
-    dialect: 'postgres',
-    logging: false,
+    ...baseConfig,
     dialectOptions: {
-      ssl: sslOptions,
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
     },
   },
 };
