@@ -26,6 +26,7 @@
 - 🧱 Monorepo на npm workspaces
 - 🚀 Деплой: Railway backend + PostgreSQL, Vercel frontend
 - ✅ GitHub Actions CI
+- 🧪 E2E-тесты на Playwright: auth, places, photo upload, public map
 
 ## Стек
 

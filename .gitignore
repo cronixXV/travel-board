@@ -33,3 +33,12 @@ server/uploads/
 
 # Docker
 postgres_data/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+tets.md
