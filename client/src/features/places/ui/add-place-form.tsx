@@ -66,7 +66,7 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
 
   return (
     <div
-      className="flex max-h-[calc(100dvh_-_8rem_-_env(safe-area-inset-bottom))] flex-col overflow-hidden rounded-[28px] wb-card ring-1 ring-slate-200/70 dark:ring-white/10 sm:max-h-[calc(100dvh_-_7rem)]"
+      className="pointer-events-auto flex max-h-full w-full max-w-md flex-col overflow-hidden rounded-[28px] wb-card ring-1 ring-slate-200/70 dark:ring-white/10"
       onClick={stopMapEvent}
       onDoubleClick={stopMapEvent}
       onMouseDown={stopMapEvent}
@@ -76,7 +76,7 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
       <div className="h-2 shrink-0 bg-[#ffdf3d]" />
 
       <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
-        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-5">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden px-5 py-5">
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl wb-brand-icon shadow-sm">

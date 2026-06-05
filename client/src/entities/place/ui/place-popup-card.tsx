@@ -15,14 +15,11 @@ export const PlacePopupCard = ({
   place,
   actions,
   children,
-  isEditing = false,
   showDetails = true,
 }: IPlacePopupCardProps) => {
   return (
     <div
-      className={`flex max-h-[calc(100vh-10rem)] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[28px] bg-white dark:bg-slate-950 ${
-        isEditing ? 'w-[400px]' : 'w-[340px]'
-      }`}
+      className="pointer-events-auto flex max-h-full w-full max-w-md flex-col overflow-hidden rounded-[28px] bg-white dark:bg-slate-950"
       onClick={(event) => event.stopPropagation()}
       onDoubleClick={(event) => event.stopPropagation()}
       onMouseDown={(event) => event.stopPropagation()}

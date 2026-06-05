@@ -19,7 +19,7 @@ interface TravelMapProps {
 }
 
 const formOverlayClassName =
-  'fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-[1300] mx-auto max-w-md sm:absolute sm:bottom-6 sm:left-1/2 sm:right-auto sm:w-full sm:max-w-95 sm:-translate-x-1/2 sm:px-4';
+  'pointer-events-none fixed inset-x-0 top-[7rem] bottom-[calc(6rem+env(safe-area-inset-bottom))] z-[1300] flex items-center justify-center px-4 sm:absolute sm:left-1/2 sm:right-auto sm:top-auto sm:bottom-6 sm:block sm:w-full sm:max-w-95 sm:-translate-x-1/2 sm:px-4';
 
 export const TravelMap = ({
   places,
