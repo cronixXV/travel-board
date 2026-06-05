@@ -8,6 +8,8 @@ export type {
   TPlaceVisibilityFilter,
   IPlaceFilters,
   IPlacesResponse,
+  IPlacesStats,
+  IPlacesStatsResponse,
 } from './model/types/place.types';
 
 export { placesApi } from './api/place.api';
@@ -19,6 +21,7 @@ export {
   useUpdatePlace,
   useDeletePlace,
   usePlacesWithMeta,
+  usePlacesStats,
 } from './hooks/use-places';
 export { useUploadPhotos, useRemovePhoto } from './hooks/use-photos';
 

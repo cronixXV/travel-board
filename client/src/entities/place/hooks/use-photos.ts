@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { IPlace, IPlacePhoto } from '@/entities/place';
+import { IPlace } from '@/entities/place';
 import { photosApi } from '../api/photo.api';
 
 export const useUploadPhotos = (placeId: number) => {
@@ -31,19 +31,9 @@ export const useRemovePhoto = (placeId: number) => {
 
   return useMutation({
     mutationFn: (photoId: number) => photosApi.remove(placeId, photoId),
-    onSuccess: (_, photoId) => {
-      queryClient.setQueryData(['places'], (oldData: IPlace[]) =>
-        oldData.map((place) =>
-          place.id === placeId
-            ? {
-                ...place,
-                photos: place.photos.filter(
-                  (p: IPlacePhoto) => p.id !== photoId
-                ),
-              }
-            : place
-        )
-      );
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['places'] });
     },
   });
 };

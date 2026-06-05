@@ -1,50 +1,62 @@
 # 🗺 Wanderboard
 
-[![CI](https://github.com/cronixXV/travel-board/actions/workflows/ci.yml/badge.svg)](https://github.com/cronixXV/travel-board/actions/workflows/ci.yml)
-
 **Wanderboard** — персональная интерактивная карта путешествий.
+Отмечайте места, добавляйте описания, даты посещения и фотографии, фильтруйте поездки, смотрите статистику и делитесь публичной картой по ссылке.
 
-Отмечай места, где побывал, добавляй описания и фотографии, собирай статистику по странам и делись своей картой с друзьями по публичной ссылке.
+## 🌐 Live
 
-## Demo
+- **Frontend:** https://travel-board-seven.vercel.app
+- **API:** https://travel-board-production.up.railway.app
+- **Health check:** https://travel-board-production.up.railway.app/health
 
-- Frontend: https://travel-board-seven.vercel.app
-- Backend health check: https://travel-board-production.up.railway.app/health
+## ✨ Фичи
 
-## Фичи
+- 🗺 Интерактивная карта путешествий
+- 📍 Добавление места двойным кликом по карте
+- ✏️ Редактирование мест:
+  - название
+  - описание
+  - дата посещения
+  - координаты
+  - публичность
 
-- 🗺 Интерактивная карта — двойной клик добавляет место
-- 📍 Автоматическое определение страны по координатам
-- 📸 Загрузка фото с drag-and-drop
-- 🖼 Галерея фото с lightbox-просмотром
-- 🔗 Публичная страница карты по ссылке `/map/:username`
-- 👁 Переключение видимости места: публичное / скрытое
-- 📊 Статистика — места, страны, фотографии
-- 🌙 Светлая и тёмная тема
-- 🔐 JWT авторизация с refresh token в httpOnly cookie
-- 🛡 Rate limiting на auth endpoints
-- 🧱 Monorepo на npm workspaces
-- 🚀 Деплой: Railway backend + PostgreSQL, Vercel frontend
-- ✅ GitHub Actions CI
-- 🧪 E2E-тесты на Playwright: auth, places, photo upload, public map
+- 🌍 Автоматическое определение страны и континента по координатам
+- 🔎 Поиск мест по названию, стране, континенту и описанию
+- 🧭 Фильтрация мест:
+  - все
+  - публичные
+  - скрытые
 
-## Стек
+- 📸 Загрузка фото к месту
+- 🧾 Расширенная статистика:
+  - места
+  - страны
+  - континенты
+  - фото
+  - публичные / скрытые места
+  - топ стран
+  - места по годам
+
+- 🔗 Публичная карта пользователя по ссылке `/map/:username`
+- 🌙 Тёмная тема
+- 🔐 JWT-авторизация с refresh token cookie
+- 📱 Адаптивный UI для мобильных устройств
+- ✅ E2E-тесты на Playwright
+- ⚙️ CI через GitHub Actions
+
+## 🧱 Стек
 
 ### Frontend
 
 - React
 - TypeScript
-- Feature-Sliced Design
 - Vite
-- React Router
+- Feature-Sliced Design
 - TanStack Query
-- React Hook Form
-- Zod
+- React Router
 - React Leaflet
 - Tailwind CSS
-- shadcn/ui-style components
-- lucide-react
-- yet-another-react-lightbox
+- shadcn/ui
 
 ### Backend
 
@@ -54,188 +66,164 @@
 - Sequelize
 - PostgreSQL
 - JWT auth
-- bcrypt
-- multer
-- helmet
-- express-rate-limit
+- cookie-based refresh tokens
+- multer для загрузки файлов
 - Zod validation
 
 ### Infrastructure
 
 - npm workspaces
 - Docker Compose
-- Railway
-- Vercel
-- GitHub Actions
+- Railway для backend + PostgreSQL + uploads volume
+- Vercel для frontend
+- GitHub Actions CI
+- Playwright E2E
 
-## Структура проекта
-
-```txt
-travel-board/
-├── client/                 # Frontend-приложение
-│   ├── src/
-│   │   ├── app/             # Инициализация приложения, роутинг, стили
-│   │   ├── pages/           # Страницы
-│   │   ├── widgets/         # Крупные UI-блоки
-│   │   ├── features/        # Пользовательские сценарии
-│   │   ├── entities/        # Бизнес-сущности
-│   │   └── shared/          # Общие UI, lib, api, config
-│   └── public/
-│
-├── server/                 # Backend API
-│   ├── src/
-│   │   ├── config/          # env и конфигурация
-│   │   ├── database/        # Sequelize models, migrations, DB init
-│   │   ├── middleware/      # auth, error-handler, rate-limit
-│   │   ├── routes/          # auth, places, photos, spa
-│   │   ├── types/           # типы
-│   │   └── utils/           # jwt, geocoding, render html
-│
-├── shared/                 # Общие схемы и типы
-│   └── schemas/
-│
-├── .github/workflows/      # GitHub Actions CI
-├── docker-compose.yml      # Локальная PostgreSQL БД
-├── docker-compose.dev.yml  # Полное dev-окружение в Docker
-├── .env.example
-├── vercel.json             # SPA fallback для Vercel
-└── package.json
-```
-
-## Быстрый старт
+## 🚀 Быстрый старт
 
 ### Требования
 
-- Node.js 20.19+
-- npm 10+
+- Node.js 20+
 - Docker
-- Docker Compose
+- npm
 
 ### Установка
 
 ```bash
-git clone https://github.com/cronixXV/travel-board.git
+git clone https://github.com/cronixXV/travel-board
 cd travel-board
 
 npm install
+```
 
+### Env
+
+Создайте `.env` в корне проекта:
+
+```bash
 cp .env.example .env
 ```
 
-Заполни `.env` локальными значениями.
-
-Для локальной разработки, когда база запущена в Docker, а frontend/backend запускаются локально, `DATABASE_URL` должен смотреть на `localhost`:
+Пример локальных переменных:
 
 ```env
+NODE_ENV=development
+PORT=3000
+
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/wanderboard
+
+JWT_SECRET=your_jwt_secret_minimum_32_chars
+JWT_REFRESH_SECRET=your_refresh_secret_minimum_32_chars
+
 CLIENT_URL=http://localhost:5173
-APP_PUBLIC_URL=http://localhost:3000
+APP_PUBLIC_URL=http://localhost:5173
 API_PUBLIC_URL=http://localhost:3000
+
 VITE_API_URL=http://localhost:3000
-VITE_PUBLIC_APP_URL=http://localhost:3000
+VITE_PUBLIC_APP_URL=http://localhost:5173
+
+UPLOADS_DIR=./uploads
+CLIENT_DIST_PATH=../client/dist
 ```
 
-### Запуск локально
-
-Подними PostgreSQL:
+### База данных
 
 ```bash
-docker compose up -d
+docker compose up -d db
 ```
 
-Запусти миграции:
+### Миграции
 
 ```bash
-cd server
-npx sequelize-cli db:migrate
-cd ..
+npm run migrate -w server
 ```
 
-Запусти frontend и backend:
+Проверить статус миграций:
+
+```bash
+npm run migrate:status -w server
+```
+
+### Запуск проекта
 
 ```bash
 npm run dev
 ```
 
-Открыть:
+После запуска:
 
 - Frontend: http://localhost:5173
 - Backend: http://localhost:3000
 - Health check: http://localhost:3000/health
 
-## Команды
+## 🧪 Тесты
+
+### E2E
 
 ```bash
-npm run dev          # запуск client + server в dev-режиме
-npm run build        # сборка всех workspaces
-npm run typecheck    # проверка типов
-npm run lint         # линтинг
-npm run format       # форматирование prettier
-npm run clean        # очистка dist-директорий
+npm run e2e
 ```
 
-Анализ client bundle:
+### Playwright UI mode
 
 ```bash
-npm run analyze -w client
+npm run e2e:ui
 ```
 
-## Docker
+### Запуск E2E против production frontend
 
 ```bash
-# Только PostgreSQL для локальной разработки
-docker compose up -d
+E2E_BASE_URL=https://travel-board-seven.vercel.app E2E_SKIP_WEB_SERVER=1 npm run e2e
+```
 
-# Остановить локальную БД
+## 🛠 Команды
+
+```bash
+npm run dev              # запуск client + server в dev-режиме
+npm run build            # сборка всех workspaces
+npm run typecheck        # проверка TypeScript
+npm run lint             # линтинг
+npm run e2e              # Playwright E2E-тесты
+npm run e2e:ui           # Playwright UI mode
+```
+
+## 🐳 Docker
+
+Для локальной разработки обычно достаточно поднять только PostgreSQL:
+
+```bash
+docker compose up -d db
+```
+
+Остановить контейнеры:
+
+```bash
 docker compose down
-
-# Полное dev-окружение в Docker
-docker compose -f docker-compose.dev.yml up --build
-
-# Остановить полное dev-окружение
-docker compose -f docker-compose.dev.yml down
 ```
 
-Удалить локальную БД вместе с volume:
+Если нужно удалить volume с данными БД:
 
 ```bash
 docker compose down -v
 ```
 
-> Осторожно: команда удалит локальные данные PostgreSQL.
+## 🔐 Auth
 
-## Environment variables
+Авторизация построена на JWT:
 
-Пример находится в `.env.example`.
+- access token используется для API-запросов
+- refresh token хранится в httpOnly cookie
+- `/api/auth/refresh` обновляет access token
+- `/api/auth/me` возвращает текущего пользователя
+- username нормализуется в lowercase и используется в публичной ссылке
 
-### Backend
+Пример публичной карты:
 
-```env
-PORT=3000
-NODE_ENV=development
-
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/wanderboard
-
-JWT_SECRET=your-secret-minimum-32-chars
-JWT_REFRESH_SECRET=your-refresh-secret-minimum-32-chars
-
-CLIENT_URL=http://localhost:5173
-
-APP_PUBLIC_URL=http://localhost:3000
-API_PUBLIC_URL=http://localhost:3000
-
-CLIENT_DIST_PATH=../client/dist
-UPLOADS_DIR=./uploads
+```txt
+/map/testuser
 ```
 
-### Frontend
-
-```env
-VITE_API_URL=http://localhost:3000
-VITE_PUBLIC_APP_URL=http://localhost:3000
-```
-
-## API routes
+## 📡 API
 
 ### Auth
 
@@ -251,6 +239,8 @@ GET  /api/auth/me
 
 ```txt
 GET    /api/places
+GET    /api/places?search=rome&visibility=public
+GET    /api/places/stats
 GET    /api/places/:id
 POST   /api/places
 PATCH  /api/places/:id
@@ -261,120 +251,102 @@ DELETE /api/places/:id
 
 ```txt
 GET /api/places/public/:username
-GET /map/:username
 ```
 
 ### Photos
 
 ```txt
-POST   /api/places/:id/photos
+POST   /api/places/:placeId/photos
 DELETE /api/places/:placeId/photos/:photoId
 GET    /uploads/:filename
 ```
 
-## Авторизация
+## 🔎 Поиск и фильтрация
 
-Проект использует:
+Поиск выполняется на backend и поддерживает поля:
 
-- Access token в памяти клиента
-- Refresh token в httpOnly cookie
-- Axios interceptor для автоматического refresh
-- Protected routes на frontend
-- `authenticate` middleware на backend
+- название
+- страна
+- континент
+- описание
 
-Для production-деплоя с разными доменами frontend/backend используются cookie-настройки:
+Фильтр публичности:
+
+```txt
+all | public | private
+```
+
+Пример:
+
+```txt
+GET /api/places?search=италия&visibility=public
+```
+
+## 📊 Расширенная статистика
+
+Endpoint:
+
+```txt
+GET /api/places/stats
+```
+
+Возвращает:
 
 ```ts
-secure: true;
-sameSite: 'none';
+{
+  totalPlaces: number;
+  totalCountries: number;
+  totalContinents: number;
+  totalPhotos: number;
+
+  visibility: {
+    public: number;
+    private: number;
+  }
+
+  byCountry: Array<{
+    country: string;
+    count: number;
+  }>;
+
+  byContinent: Array<{
+    continent: string;
+    count: number;
+  }>;
+
+  byYear: Array<{
+    year: string;
+    count: number;
+  }>;
+}
 ```
 
-## Работа с фото
+## 🚢 Deploy
 
-Фото загружаются через `multer` и сохраняются в директорию `UPLOADS_DIR`.
+### Frontend — Vercel
 
-Локально:
+Production frontend:
+
+```txt
+https://travel-board-seven.vercel.app
+```
+
+Vercel env:
 
 ```env
-UPLOADS_DIR=./uploads
+VITE_API_URL=https://travel-board-production.up.railway.app
+VITE_PUBLIC_APP_URL=https://travel-board-seven.vercel.app
 ```
-
-На Railway:
-
-```env
-UPLOADS_DIR=/app/uploads
-```
-
-Для хранения фото в Railway используется persistent Volume. Изображения сохраняются после redeploy/restart backend service.
-
-## Публичная карта
-
-Каждый пользователь получает публичную ссылку:
-
-```txt
-/map/:username
-```
-
-В личном dashboard можно:
-
-- скопировать публичную ссылку
-- включить или выключить публичность отдельного места
-- скрытые места не отображаются на публичной карте
-
-## Security
-
-На сервере используются:
-
-- `helmet`
-- `express-rate-limit` для auth routes
-- `cors` с `credentials: true`
-- httpOnly refresh cookie
-- password hashing через `bcrypt`
-- Zod validation
-- protected private routes
-- global error handler
-
-## CI
-
-GitHub Actions запускается на push и pull request в `main`.
-
-Pipeline:
-
-```txt
-typecheck → lint → build
-```
-
-Workflow находится в:
-
-```txt
-.github/workflows/ci.yml
-```
-
-Перед коммитом можно локально проверить:
-
-```bash
-npm run typecheck
-npm run lint
-npm run build
-```
-
-## Deploy
 
 ### Backend — Railway
 
-Backend задеплоен на Railway:
+Production API:
 
 ```txt
 https://travel-board-production.up.railway.app
 ```
 
-Используется:
-
-- Railway service для Express backend
-- Railway PostgreSQL
-- Railway Volume для `/app/uploads`
-
-Основные переменные Railway:
+Railway env:
 
 ```env
 NODE_ENV=production
@@ -393,41 +365,53 @@ UPLOADS_DIR=/app/uploads
 CLIENT_DIST_PATH=/app/client/dist
 ```
 
-Миграции:
-
-```bash
-DATABASE_URL="<DATABASE_PUBLIC_URL>" NODE_ENV=production npm run migrate -w server
-```
-
-### Frontend — Vercel
-
-Frontend задеплоен на Vercel:
+Uploads хранятся в Railway Volume:
 
 ```txt
-https://travel-board-seven.vercel.app
+/app/uploads
 ```
 
-Основные переменные Vercel:
+## ✅ CI
 
-```env
-VITE_API_URL=https://travel-board-production.up.railway.app
-VITE_PUBLIC_APP_URL=https://travel-board-seven.vercel.app
+GitHub Actions workflow запускается на `push` и `pull_request` в ветку `main`.
+
+CI состоит из трёх job:
+
+### Typecheck & Lint
+
+- устанавливает зависимости через `npm ci`
+- проверяет типы в `shared`
+- собирает `shared` для workspace-потребителей
+- проверяет типы в `server`
+- проверяет типы в `client`
+- запускает линтинг
+
+### Build
+
+- устанавливает зависимости через `npm ci`
+- собирает `shared`
+- собирает `server`
+- собирает `client` с production env-переменными из GitHub Secrets
+
+### E2E
+
+- поднимает PostgreSQL service
+- устанавливает зависимости через `npm ci`
+- устанавливает Playwright Chromium
+- собирает `shared`
+- запускает миграции
+- создаёт директорию `uploads`
+- запускает Playwright E2E-тесты
+- загружает Playwright report и test results как GitHub Actions artifacts
+
+Workflow находится здесь:
+
+```txt
+.github/workflows/ci.yml
 ```
 
-Для SPA routes используется `vercel.json`:
+CI не выполняет deploy. Деплой frontend/backend выполняется отдельно через Vercel и Railway.
 
-```json
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
-}
-```
+## 📄 License
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+MIT License.

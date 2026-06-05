@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useDebounceValue } from '@siberiacancode/reactuse';
 
 import { TPlaceVisibilityFilter, usePlacesWithMeta } from '@/entities/place';
-import { PlacesSearchButton } from '@/features/places';
+import { PlacesSearchButton, PlacesStatsButton } from '@/features/places';
 import { DashboardLayout } from '@/widgets/dashboard-layout';
 import { TravelMap } from '@/widgets/travel-map';
 
@@ -10,6 +10,7 @@ export const DashboardPage = () => {
   const [search, setSearch] = useState('');
   const [visibility, setVisibility] = useState<TPlaceVisibilityFilter>('all');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isStatsOpen, setIsStatsOpen] = useState(false);
 
   const debouncedSearch = useDebounceValue(search, 700);
 
@@ -35,17 +36,30 @@ export const DashboardPage = () => {
   return (
     <DashboardLayout
       afterUserSlot={
-        <PlacesSearchButton
-          search={search}
-          visibility={visibility}
-          isOpen={isSearchOpen}
-          totalCount={totalCount}
-          filteredCount={filteredCount}
-          onOpenChange={setIsSearchOpen}
-          onSearchChange={setSearch}
-          onVisibilityChange={setVisibility}
-          onReset={handleResetFilters}
-        />
+        <>
+          <PlacesSearchButton
+            search={search}
+            visibility={visibility}
+            isOpen={isSearchOpen}
+            totalCount={totalCount}
+            filteredCount={filteredCount}
+            onOpenChange={(value) => {
+              setIsSearchOpen(value);
+              if (value) setIsStatsOpen(false);
+            }}
+            onSearchChange={setSearch}
+            onVisibilityChange={setVisibility}
+            onReset={handleResetFilters}
+          />
+
+          <PlacesStatsButton
+            isOpen={isStatsOpen}
+            onOpenChange={(value) => {
+              setIsStatsOpen(value);
+              if (value) setIsSearchOpen(false);
+            }}
+          />
+        </>
       }
     >
       <TravelMap

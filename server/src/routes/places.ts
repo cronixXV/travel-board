@@ -1,14 +1,17 @@
 import { Request, Response, Router } from 'express';
 import { Op, WhereOptions } from 'sequelize';
-import { Place } from '../database/models/place';
-import { PlacePhoto } from '../database/models/place-photo';
-import { User } from '../database/models/user';
+
 import {
   CreatePlaceSchema,
   UpdatePlaceSchema,
 } from '@wanderboard/shared/schemas/place.schema';
+
+import { Place } from '../database/models/place';
+import { PlacePhoto } from '../database/models/place-photo';
+import { User } from '../database/models/user';
 import { authenticate } from '../middleware/authenticate';
-import { getCountryByCoords } from '../utils/geocoding';
+import { getLocationByCoords } from '../utils/geocoding';
+import { getContinentByCountryName } from '../utils/continent';
 
 const router = Router();
 
@@ -62,6 +65,11 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
           },
           {
             country: {
+              [Op.iLike]: `%${search}%`,
+            },
+          },
+          {
+            continent: {
               [Op.iLike]: `%${search}%`,
             },
           },
@@ -145,6 +153,119 @@ router.get('/public/:username', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/places/stats — расширенная статистика текущего пользователя
+router.get('/stats', authenticate, async (req: Request, res: Response) => {
+  try {
+    const places = await Place.findAll({
+      where: {
+        userId: req.user!.userId,
+      },
+      include: [
+        {
+          model: PlacePhoto,
+          as: 'photos',
+        },
+      ],
+    });
+
+    const totalPlaces = places.length;
+
+    const totalPhotos = places.reduce(
+      (acc, place) => acc + (place.photos?.length || 0),
+      0
+    );
+
+    const countries = new Set(
+      places.map((place) => place.country).filter(Boolean)
+    );
+
+    const getPlaceContinent = (place: Place) => {
+      return place.continent || getContinentByCountryName(place.country);
+    };
+
+    const continents = new Set(
+      places.map((place) => getPlaceContinent(place)).filter(Boolean)
+    );
+
+    const visibility = places.reduce(
+      (acc, place) => {
+        if (place.isPublic) {
+          acc.public += 1;
+        } else {
+          acc.private += 1;
+        }
+
+        return acc;
+      },
+      {
+        public: 0,
+        private: 0,
+      }
+    );
+
+    const countryMap = new Map<string, number>();
+    const continentMap = new Map<string, number>();
+    const yearMap = new Map<string, number>();
+
+    places.forEach((place) => {
+      if (place.country) {
+        countryMap.set(place.country, (countryMap.get(place.country) || 0) + 1);
+      }
+
+      const continent = getPlaceContinent(place);
+
+      if (continent) {
+        continentMap.set(continent, (continentMap.get(continent) || 0) + 1);
+      }
+
+      if (place.visitedAt) {
+        const year = String(place.visitedAt).slice(0, 4);
+
+        if (/^\d{4}$/.test(year)) {
+          yearMap.set(year, (yearMap.get(year) || 0) + 1);
+        }
+      }
+    });
+
+    const byCountry = Array.from(countryMap.entries())
+      .map(([country, count]) => ({
+        country,
+        count,
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    const byContinent = Array.from(continentMap.entries())
+      .map(([continent, count]) => ({
+        continent,
+        count,
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    const byYear = Array.from(yearMap.entries())
+      .map(([year, count]) => ({
+        year,
+        count,
+      }))
+      .sort((a, b) => Number(b.year) - Number(a.year));
+
+    res.json({
+      stats: {
+        totalPlaces,
+        totalCountries: countries.size,
+        totalContinents: continents.size,
+        totalPhotos,
+        visibility,
+        byCountry,
+        byContinent,
+        byYear,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
 // GET /api/places/:id — одно место текущего пользователя
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
@@ -183,11 +304,15 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   }
 
   try {
-    const country = await getCountryByCoords(parsed.data.lat, parsed.data.lng);
+    const location = await getLocationByCoords(
+      parsed.data.lat,
+      parsed.data.lng
+    );
 
     const createdPlace = await Place.create({
       ...parsed.data,
-      country,
+      country: location.country,
+      continent: location.continent,
       userId: req.user!.userId,
     });
 
@@ -236,16 +361,22 @@ router.patch('/:id', authenticate, async (req: Request, res: Response) => {
     const nextLat = parsed.data.lat ?? place.lat;
     const nextLng = parsed.data.lng ?? place.lng;
 
-    const shouldUpdateCountry =
+    const shouldUpdateLocation =
       parsed.data.lat !== undefined || parsed.data.lng !== undefined;
 
-    const country = shouldUpdateCountry
-      ? await getCountryByCoords(nextLat, nextLng)
-      : place.country;
+    const location = shouldUpdateLocation
+      ? await getLocationByCoords(nextLat, nextLng)
+      : {
+          country: place.country ?? null,
+          continent: place.continent ?? null,
+        };
 
     await place.update({
       ...parsed.data,
-      country,
+      lat: nextLat,
+      lng: nextLng,
+      country: location.country,
+      continent: location.continent,
     });
 
     const updatedPlace = await Place.findOne({

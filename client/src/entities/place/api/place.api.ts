@@ -3,6 +3,7 @@ import {
   IPlace,
   IPlaceFilters,
   IPlacesResponse,
+  IPlacesStatsResponse,
   IPublicMapResponse,
   TUpdatePlaceData,
 } from '@/entities/place';
@@ -33,6 +34,12 @@ export const placesApi = {
         },
       },
     };
+  },
+
+  getStats: async (): Promise<IPlacesStatsResponse> => {
+    const response = await api.get('/api/places/stats');
+
+    return response.data;
   },
 
   create: async (data: ICreatePlaceData): Promise<IPlace> => {

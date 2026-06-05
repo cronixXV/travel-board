@@ -32,6 +32,14 @@ export const usePlaces = (filters?: IPlaceFilters) => {
   });
 };
 
+export const usePlacesStats = () => {
+  return useQuery({
+    queryKey: ['places', 'stats'],
+    queryFn: () => placesApi.getStats(),
+    select: (data) => data.stats,
+  });
+};
+
 export const useCreatePlace = () => {
   const queryClient = useQueryClient();
 

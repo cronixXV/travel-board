@@ -8,17 +8,17 @@ export interface IPlacePhoto {
 
 export interface IPlace {
   id: number;
-  userId: number;
   name: string;
-  description: string | null;
+  description?: string | null;
   lat: number;
   lng: number;
-  country: string | null;
-  visitedAt: string | null;
+  country?: string | null;
+  continent?: string | null;
+  visitedAt?: string | null;
   isPublic: boolean;
-  createdAt: string;
-  updatedAt: string;
-  photos: IPlacePhoto[];
+  photos?: IPlacePhoto[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ICreatePlaceData {
@@ -59,4 +59,35 @@ export interface IPublicMapUser {
 export interface IPublicMapResponse {
   user: IPublicMapUser;
   places: IPlace[];
+}
+
+export interface IPlacesStats {
+  totalPlaces: number;
+  totalCountries: number;
+  totalContinents: number;
+  totalPhotos: number;
+
+  visibility: {
+    public: number;
+    private: number;
+  };
+
+  byCountry: Array<{
+    country: string;
+    count: number;
+  }>;
+
+  byContinent: Array<{
+    continent: string;
+    count: number;
+  }>;
+
+  byYear: Array<{
+    year: string;
+    count: number;
+  }>;
+}
+
+export interface IPlacesStatsResponse {
+  stats: IPlacesStats;
 }
