@@ -4,14 +4,15 @@ import 'leaflet/dist/leaflet.css';
 import { Loader2 } from 'lucide-react';
 
 import { createPlaceIcon, IPlace, useDeletePlace } from '@/entities/place';
-import { AddPlaceForm } from '@/features/places';
-import { MapClickHandler } from './map-click-handler';
-import { PlacePopupContent } from './place-popup-content';
+import { AddPlaceForm, EditPlaceForm } from '@/features/places';
 import { MapStats } from '@/widgets/map-stats';
 import { useTheme } from '@/shared/hooks/use-theme';
 import { getTileUrl } from '@/shared/lib/get-tile-url';
 
-interface ITravelMapProps {
+import { MapClickHandler } from './map-click-handler';
+import { PlacePopupContent } from './place-popup-content';
+
+interface TravelMapProps {
   places: IPlace[];
   isLoading: boolean;
   isFetching?: boolean;
@@ -21,7 +22,7 @@ export const TravelMap = ({
   places,
   isLoading,
   isFetching = false,
-}: ITravelMapProps) => {
+}: TravelMapProps) => {
   const { mutate: deletePlace } = useDeletePlace();
 
   const [pendingCoords, setPendingCoords] = useState<{
@@ -29,10 +30,21 @@ export const TravelMap = ({
     lng: number;
   } | null>(null);
 
+  const [editingPlace, setEditingPlace] = useState<IPlace | null>(null);
+
   const placeIcon = useMemo(() => createPlaceIcon(), []);
 
   const { theme } = useTheme();
   const tileUrl = getTileUrl(theme);
+
+  const handleOpenEdit = (place: IPlace) => {
+    setPendingCoords(null);
+    setEditingPlace(place);
+  };
+
+  const handleCloseEdit = () => {
+    setEditingPlace(null);
+  };
 
   if (isLoading) {
     return (
@@ -65,10 +77,13 @@ export const TravelMap = ({
         />
 
         <MapClickHandler
-          onDblClick={(lat, lng) => setPendingCoords({ lat, lng })}
+          onDblClick={(lat, lng) => {
+            setEditingPlace(null);
+            setPendingCoords({ lat, lng });
+          }}
         />
 
-        {places.map((place: IPlace) => (
+        {places.map((place) => (
           <Marker
             key={place.id}
             position={[place.lat, place.lng]}
@@ -80,10 +95,14 @@ export const TravelMap = ({
               maxWidth={340}
               closeButton={false}
               autoPan
-              autoPanPaddingTopLeft={[24, 110]}
+              autoPanPaddingTopLeft={[84, 110]}
               autoPanPaddingBottomRight={[24, 24]}
             >
-              <PlacePopupContent place={place} onDelete={deletePlace} />
+              <PlacePopupContent
+                place={place}
+                onDelete={deletePlace}
+                onEdit={handleOpenEdit}
+              />
             </Popup>
           </Marker>
         ))}
@@ -100,11 +119,22 @@ export const TravelMap = ({
       )}
 
       {pendingCoords && (
-        <div className="absolute bottom-6 left-1/2 z-1000 w-full max-w-95 -translate-x-1/2 px-4">
+        <div className="fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-[1300] mx-auto max-w-md sm:absolute sm:bottom-6 sm:left-1/2 sm:right-auto sm:w-full sm:max-w-95 sm:-translate-x-1/2 sm:px-4">
           <AddPlaceForm
             lat={pendingCoords.lat}
             lng={pendingCoords.lng}
             onClose={() => setPendingCoords(null)}
+          />
+        </div>
+      )}
+
+      {editingPlace && (
+        <div className="fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-[1300] mx-auto max-w-md sm:absolute sm:bottom-6 sm:left-1/2 sm:right-auto sm:w-full sm:max-w-95 sm:-translate-x-1/2 sm:px-4">
+          <EditPlaceForm
+            place={editingPlace}
+            onCancel={handleCloseEdit}
+            onClose={handleCloseEdit}
+            onSuccess={handleCloseEdit}
           />
         </div>
       )}

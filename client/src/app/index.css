@@ -464,6 +464,12 @@
   color: var(--foreground);
 }
 
+@media (max-width: 640px) {
+  .leaflet-control-zoom {
+    display: none !important;
+  }
+}
+
 /* Wanderboard marker */
 
 .wanderboard-marker {

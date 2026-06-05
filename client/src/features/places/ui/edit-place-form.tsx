@@ -14,9 +14,8 @@ import { IPlace, useUpdatePlace } from '@/entities/place';
 import { Button } from '@/shared/ui/button/ui/button';
 import { Input } from '@/shared/ui/input/ui/input';
 import { Label } from '@/shared/ui/label/ui/label';
-import { toCoordInputValue, toDateInputValue } from '../lib/helpers';
 
-interface IEditPlaceFormProps {
+interface EditPlaceFormProps {
   place: IPlace;
   onCancel: () => void;
   onClose: () => void;
@@ -29,12 +28,32 @@ const labelClassName =
 const inputClassName =
   'h-11 rounded-2xl wb-input px-4 text-sm shadow-none transition-colors focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40';
 
+const stopMapEvent = (event: React.SyntheticEvent) => {
+  event.stopPropagation();
+};
+
+const toDateInputValue = (value?: string | null) => {
+  if (!value) return '';
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  return date.toISOString().slice(0, 10);
+};
+
+const toCoordInputValue = (value: number) => {
+  return Number(value).toFixed(6);
+};
+
 export const EditPlaceForm = ({
   place,
   onCancel,
   onClose,
   onSuccess,
-}: IEditPlaceFormProps) => {
+}: EditPlaceFormProps) => {
   const { mutate: updatePlace, isPending } = useUpdatePlace();
 
   const [name, setName] = useState(place.name || '');
@@ -77,52 +96,52 @@ export const EditPlaceForm = ({
 
   return (
     <div
-      className="max-h-[calc(100vh-8rem)] w-85 overflow-y-auto rounded-[28px] wb-card ring-1 ring-slate-200/70 dark:ring-white/10"
-      onClick={(event) => event.stopPropagation()}
-      onDoubleClick={(event) => event.stopPropagation()}
-      onMouseDown={(event) => event.stopPropagation()}
-      onPointerDown={(event) => event.stopPropagation()}
-      onWheel={(event) => event.stopPropagation()}
+      className="flex max-h-[calc(100dvh_-_8rem_-_env(safe-area-inset-bottom))] w-[min(22rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-[28px] wb-card ring-1 ring-slate-200/70 dark:ring-white/10 sm:max-h-[calc(100dvh_-_7rem)]"
+      onClick={stopMapEvent}
+      onDoubleClick={stopMapEvent}
+      onMouseDown={stopMapEvent}
+      onPointerDown={stopMapEvent}
+      onWheel={stopMapEvent}
     >
-      <div className="h-2 bg-[#ffdf3d]" />
+      <div className="h-2 shrink-0 bg-[#ffdf3d]" />
 
-      <div className="p-5">
-        <div className="mb-4 flex items-start justify-between gap-3">
-          <div>
-            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl wb-brand-icon shadow-sm">
-              <MapPin className="h-5 w-5" />
+      <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl wb-brand-icon shadow-sm">
+                <MapPin className="h-5 w-5" />
+              </div>
+
+              <h3 className="text-xl font-bold tracking-[-0.02em] text-slate-950 dark:text-slate-50">
+                Редактировать место
+              </h3>
+
+              <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">
+                Измените данные точки на карте.
+              </p>
             </div>
 
-            <h3 className="text-xl font-bold tracking-[-0.02em] text-slate-950 dark:text-slate-50">
-              Редактировать место
-            </h3>
-
-            <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">
-              Измените данные точки на карте.
-            </p>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Закрыть"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Закрыть"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="mb-4 rounded-2xl border border-amber-200/70 bg-amber-50/80 px-4 py-3 text-sm text-amber-800 dark:border-amber-300/20 dark:bg-amber-300/10 dark:text-amber-100">
-          <div className="flex items-start gap-2">
-            <Navigation className="mt-0.5 h-4 w-4 shrink-0" />
-            <p>
-              При изменении координат страна будет определена заново
-              автоматически.
-            </p>
+          <div className="rounded-2xl border border-amber-200/70 bg-amber-50/80 px-4 py-3 text-sm text-amber-800 dark:border-amber-300/20 dark:bg-amber-300/10 dark:text-amber-100">
+            <div className="flex items-start gap-2">
+              <Navigation className="mt-0.5 h-4 w-4 shrink-0" />
+              <p>
+                При изменении координат страна будет определена заново
+                автоматически.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label
               htmlFor={`edit-place-name-${place.id}`}
@@ -156,7 +175,7 @@ export const EditPlaceForm = ({
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               rows={3}
-              className="min-h-20 w-full resize-none rounded-2xl border wb-input px-4 py-3 text-sm leading-6 shadow-none outline-none transition placeholder:text-muted-foreground focus:border-[#ffdf3d] focus:ring-3 focus:ring-[#ffdf3d]/40"
+              className="min-h-28 w-full resize-none rounded-2xl border wb-input px-4 py-3 text-sm leading-6 shadow-none outline-none transition placeholder:text-muted-foreground focus:border-[#ffdf3d] focus:ring-3 focus:ring-[#ffdf3d]/40"
             />
           </div>
 
@@ -222,14 +241,14 @@ export const EditPlaceForm = ({
           </div>
 
           {!isCoordsValid && (
-            <p className="text-sm font-medium text-red-500">
+            <p className="text-sm font-medium text-red-500 dark:text-red-400">
               Укажите корректные координаты.
             </p>
           )}
 
           <div className="flex items-center justify-between gap-3 rounded-2xl wb-muted-card px-4 py-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm dark:bg-slate-950/70 dark:text-slate-300">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm dark:bg-slate-950/70 dark:text-slate-300">
                 {isPublic ? (
                   <Globe2 className="h-4 w-4" />
                 ) : (
@@ -237,7 +256,7 @@ export const EditPlaceForm = ({
                 )}
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <p className="text-sm font-semibold text-slate-950 dark:text-slate-50">
                   {isPublic ? 'Публичное место' : 'Скрытое место'}
                 </p>
@@ -262,8 +281,10 @@ export const EditPlaceForm = ({
               />
             </button>
           </div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-2 pt-1">
+        <div className="shrink-0 border-t border-slate-200/70 bg-white/95 px-5 pb-[calc(0.75rem_+_env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/95">
+          <div className="grid grid-cols-2 gap-2">
             <Button
               type="button"
               variant="outline"
@@ -291,8 +312,8 @@ export const EditPlaceForm = ({
               )}
             </Button>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };

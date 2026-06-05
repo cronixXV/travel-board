@@ -51,7 +51,7 @@ export const DashboardLayout = ({
   };
 
   return (
-    <div className="relative h-screen overflow-hidden wb-page">
+    <div className="relative h-[100dvh] overflow-hidden wb-page">
       <header className="pointer-events-none absolute left-0 right-0 top-0 z-1200 px-4 pt-4 sm:px-6">
         <div className="mx-auto flex max-w-7xl items-start justify-between gap-2 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-3">
           <div className="flex justify-start">
@@ -130,7 +130,7 @@ export const DashboardLayout = ({
         </div>
       </header>
 
-      <main className="h-screen">{children}</main>
+      <main className="h-[100dvh]">{children}</main>
     </div>
   );
 };

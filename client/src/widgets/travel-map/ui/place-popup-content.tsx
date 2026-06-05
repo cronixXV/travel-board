@@ -1,10 +1,9 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense } from 'react';
 import { useMap } from 'react-leaflet';
 import { Globe2, LockKeyhole, Pencil, Trash2, X } from 'lucide-react';
 
 import { IPlace, useUpdatePlace } from '@/entities/place';
-import { PlacePopupCard } from '@/entities/place';
-import { EditPlaceForm } from '@/features/places';
+import { PlacePopupCard } from '@/entities/place/ui/place-popup-card';
 
 const PhotoUploader = lazy(() =>
   import('@/features/photos/ui/photo-uploader').then((module) => ({
@@ -15,6 +14,7 @@ const PhotoUploader = lazy(() =>
 interface IPlacePopupContentProps {
   place: IPlace;
   onDelete: (id: number) => void;
+  onEdit: (place: IPlace) => void;
 }
 
 const PhotoUploaderFallback = () => {
@@ -29,14 +29,19 @@ const PhotoUploaderFallback = () => {
 export const PlacePopupContent = ({
   place,
   onDelete,
+  onEdit,
 }: IPlacePopupContentProps) => {
   const map = useMap();
   const { mutate: updatePlace, isPending: isUpdatingPublic } = useUpdatePlace();
-  const [isEditing, setIsEditing] = useState(false);
 
   const handleDelete = () => {
     onDelete(place.id);
     map.closePopup();
+  };
+
+  const handleEdit = () => {
+    map.closePopup();
+    onEdit(place);
   };
 
   const handleTogglePublic = () => {
@@ -48,17 +53,6 @@ export const PlacePopupContent = ({
     });
   };
 
-  if (isEditing) {
-    return (
-      <EditPlaceForm
-        place={place}
-        onCancel={() => setIsEditing(false)}
-        onClose={() => map.closePopup()}
-        onSuccess={() => setIsEditing(false)}
-      />
-    );
-  }
-
   return (
     <PlacePopupCard
       place={place}
@@ -66,7 +60,7 @@ export const PlacePopupContent = ({
         <>
           <button
             type="button"
-            onClick={() => setIsEditing(true)}
+            onClick={handleEdit}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-slate-100"
             aria-label="Редактировать место"
           >
