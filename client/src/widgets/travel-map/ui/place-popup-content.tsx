@@ -1,5 +1,4 @@
 import { lazy, Suspense } from 'react';
-import { useMap } from 'react-leaflet';
 import { Globe2, LockKeyhole, Pencil, Trash2, X } from 'lucide-react';
 
 import { IPlace, useUpdatePlace } from '@/entities/place';
@@ -15,6 +14,7 @@ interface IPlacePopupContentProps {
   place: IPlace;
   onDelete: (id: number) => void;
   onEdit: (place: IPlace) => void;
+  onClose: () => void;
 }
 
 const PhotoUploaderFallback = () => {
@@ -30,19 +30,9 @@ export const PlacePopupContent = ({
   place,
   onDelete,
   onEdit,
+  onClose,
 }: IPlacePopupContentProps) => {
-  const map = useMap();
   const { mutate: updatePlace, isPending: isUpdatingPublic } = useUpdatePlace();
-
-  const handleDelete = () => {
-    onDelete(place.id);
-    map.closePopup();
-  };
-
-  const handleEdit = () => {
-    map.closePopup();
-    onEdit(place);
-  };
 
   const handleTogglePublic = () => {
     updatePlace({
@@ -60,7 +50,7 @@ export const PlacePopupContent = ({
         <>
           <button
             type="button"
-            onClick={handleEdit}
+            onClick={() => onEdit(place)}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-slate-100"
             aria-label="Редактировать место"
           >
@@ -69,7 +59,7 @@ export const PlacePopupContent = ({
 
           <button
             type="button"
-            onClick={handleDelete}
+            onClick={() => onDelete(place.id)}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-red-500 transition hover:bg-red-100 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
             aria-label="Удалить место"
           >
@@ -78,7 +68,7 @@ export const PlacePopupContent = ({
 
           <button
             type="button"
-            onClick={() => map.closePopup()}
+            onClick={onClose}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-slate-100"
             aria-label="Закрыть"
           >

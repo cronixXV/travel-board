@@ -195,7 +195,7 @@ export const EditPlaceForm = ({
                 type="date"
                 value={visitedAt}
                 onChange={(event) => setVisitedAt(event.target.value)}
-                className="h-11 rounded-2xl wb-input pl-12 pr-4 text-sm shadow-none transition-colors focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40"
+                className="h-11 w-full min-w-0 max-w-full appearance-none rounded-2xl wb-input pl-12 pr-4 text-sm shadow-none transition-colors focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40"
               />
             </div>
           </div>

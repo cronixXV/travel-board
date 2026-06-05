@@ -153,7 +153,7 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
                 type="date"
                 value={visitedAt}
                 onChange={(event) => setVisitedAt(event.target.value)}
-                className="h-12 rounded-2xl wb-input pl-12 pr-4 text-base shadow-none transition-colors focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40"
+                className="h-12 w-full min-w-0 max-w-full appearance-none rounded-2xl wb-input pl-12 pr-4 text-base shadow-none transition-colors focus-visible:border-[#ffdf3d] focus-visible:ring-[#ffdf3d]/40"
               />
             </div>
           </div>

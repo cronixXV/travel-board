@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Loader2 } from 'lucide-react';
 
@@ -18,6 +18,9 @@ interface TravelMapProps {
   isFetching?: boolean;
 }
 
+const formOverlayClassName =
+  'fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-[1300] mx-auto max-w-md sm:absolute sm:bottom-6 sm:left-1/2 sm:right-auto sm:w-full sm:max-w-95 sm:-translate-x-1/2 sm:px-4';
+
 export const TravelMap = ({
   places,
   isLoading,
@@ -30,20 +33,43 @@ export const TravelMap = ({
     lng: number;
   } | null>(null);
 
-  const [editingPlace, setEditingPlace] = useState<IPlace | null>(null);
+  const [selectedPlaceId, setSelectedPlaceId] = useState<number | null>(null);
+  const [editingPlaceId, setEditingPlaceId] = useState<number | null>(null);
+
+  const selectedPlace = useMemo(() => {
+    return places.find((place) => place.id === selectedPlaceId) || null;
+  }, [places, selectedPlaceId]);
+
+  const editingPlace = useMemo(() => {
+    return places.find((place) => place.id === editingPlaceId) || null;
+  }, [places, editingPlaceId]);
 
   const placeIcon = useMemo(() => createPlaceIcon(), []);
 
   const { theme } = useTheme();
   const tileUrl = getTileUrl(theme);
 
-  const handleOpenEdit = (place: IPlace) => {
+  const closeAllOverlays = () => {
     setPendingCoords(null);
-    setEditingPlace(place);
+    setSelectedPlaceId(null);
+    setEditingPlaceId(null);
   };
 
-  const handleCloseEdit = () => {
-    setEditingPlace(null);
+  const handleOpenPlace = (place: IPlace) => {
+    setPendingCoords(null);
+    setEditingPlaceId(null);
+    setSelectedPlaceId(place.id);
+  };
+
+  const handleOpenEdit = (place: IPlace) => {
+    setPendingCoords(null);
+    setSelectedPlaceId(null);
+    setEditingPlaceId(place.id);
+  };
+
+  const handleDeletePlace = (id: number) => {
+    deletePlace(id);
+    closeAllOverlays();
   };
 
   if (isLoading) {
@@ -51,7 +77,6 @@ export const TravelMap = ({
       <div className="flex h-full items-center justify-center bg-[#f6f5ef] dark:bg-slate-950">
         <div className="flex items-center gap-3 rounded-full border border-white/80 bg-white/90 px-5 py-3 shadow-[0_16px_50px_rgba(15,23,42,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/90">
           <Loader2 className="h-5 w-5 animate-spin text-slate-950 dark:text-slate-50" />
-
           <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
             Загружаем карту...
           </span>
@@ -61,7 +86,7 @@ export const TravelMap = ({
   }
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full overflow-hidden">
       <MapContainer
         center={[20, 0]}
         zoom={2}
@@ -78,7 +103,8 @@ export const TravelMap = ({
 
         <MapClickHandler
           onDblClick={(lat, lng) => {
-            setEditingPlace(null);
+            setSelectedPlaceId(null);
+            setEditingPlaceId(null);
             setPendingCoords({ lat, lng });
           }}
         />
@@ -88,23 +114,10 @@ export const TravelMap = ({
             key={place.id}
             position={[place.lat, place.lng]}
             icon={placeIcon}
-          >
-            <Popup
-              className="wanderboard-place-popup"
-              minWidth={340}
-              maxWidth={340}
-              closeButton={false}
-              autoPan
-              autoPanPaddingTopLeft={[84, 110]}
-              autoPanPaddingBottomRight={[24, 24]}
-            >
-              <PlacePopupContent
-                place={place}
-                onDelete={deletePlace}
-                onEdit={handleOpenEdit}
-              />
-            </Popup>
-          </Marker>
+            eventHandlers={{
+              click: () => handleOpenPlace(place),
+            }}
+          />
         ))}
       </MapContainer>
 
@@ -118,8 +131,19 @@ export const TravelMap = ({
         </div>
       )}
 
+      {selectedPlace && !editingPlace && !pendingCoords && (
+        <div className={formOverlayClassName}>
+          <PlacePopupContent
+            place={selectedPlace}
+            onDelete={handleDeletePlace}
+            onEdit={handleOpenEdit}
+            onClose={() => setSelectedPlaceId(null)}
+          />
+        </div>
+      )}
+
       {pendingCoords && (
-        <div className="fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-[1300] mx-auto max-w-md sm:absolute sm:bottom-6 sm:left-1/2 sm:right-auto sm:w-full sm:max-w-95 sm:-translate-x-1/2 sm:px-4">
+        <div className={formOverlayClassName}>
           <AddPlaceForm
             lat={pendingCoords.lat}
             lng={pendingCoords.lng}
@@ -129,12 +153,12 @@ export const TravelMap = ({
       )}
 
       {editingPlace && (
-        <div className="fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-[1300] mx-auto max-w-md sm:absolute sm:bottom-6 sm:left-1/2 sm:right-auto sm:w-full sm:max-w-95 sm:-translate-x-1/2 sm:px-4">
+        <div className={formOverlayClassName}>
           <EditPlaceForm
             place={editingPlace}
-            onCancel={handleCloseEdit}
-            onClose={handleCloseEdit}
-            onSuccess={handleCloseEdit}
+            onCancel={() => setEditingPlaceId(null)}
+            onClose={() => setEditingPlaceId(null)}
+            onSuccess={() => setEditingPlaceId(null)}
           />
         </div>
       )}
