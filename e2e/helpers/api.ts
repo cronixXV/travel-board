@@ -1,4 +1,6 @@
-import { APIRequestContext, expect } from '@playwright/test';
+/// <reference types="node" />
+
+import { APIRequestContext } from '@playwright/test';
 
 export type TestUser = {
   email: string;
@@ -60,6 +62,7 @@ export const createPlaceViaApi = async ({
   isPublic = false,
   lat = 48.8566,
   lng = 2.3522,
+  visitedAt,
 }: {
   request: APIRequestContext;
   accessToken: string;
@@ -68,6 +71,7 @@ export const createPlaceViaApi = async ({
   isPublic?: boolean;
   lat?: number;
   lng?: number;
+  visitedAt?: string;
 }) => {
   const response = await request.post(`${API_URL}/api/places`, {
     headers: {
@@ -79,6 +83,7 @@ export const createPlaceViaApi = async ({
       lat,
       lng,
       isPublic,
+      visitedAt: visitedAt,
     },
   });
 

@@ -6,6 +6,41 @@ import {
   registerUserViaApi,
 } from './helpers/api';
 
+const getRenderedPlacesCount = async (page: Page) => {
+  return page.evaluate(() => {
+    const clusterElements = Array.from(
+      document.querySelectorAll('.wanderboard-cluster, .marker-cluster')
+    );
+
+    const clusterCount = clusterElements.reduce((sum, cluster) => {
+      const text = cluster.textContent?.trim() || '';
+      const match = text.match(/\d+/);
+      const count = match ? Number.parseInt(match[0], 10) : 0;
+
+      return sum + (Number.isFinite(count) ? count : 0);
+    }, 0);
+
+    const markerCount = Array.from(
+      document.querySelectorAll('.leaflet-marker-icon')
+    ).filter((marker) => {
+      return (
+        !marker.classList.contains('wanderboard-cluster-wrapper') &&
+        !marker.classList.contains('marker-cluster')
+      );
+    }).length;
+
+    return clusterCount + markerCount;
+  });
+};
+
+const expectRenderedPlacesCount = async (page: Page, count: number) => {
+  await expect
+    .poll(() => getRenderedPlacesCount(page), {
+      timeout: 10_000,
+    })
+    .toBe(count);
+};
+
 const loginViaUi = async (
   page: Page,
   user: {
@@ -40,6 +75,7 @@ test.describe('Places search and filters', () => {
       isPublic: true,
       lat: 30.0444,
       lng: 31.2357,
+      visitedAt: '2026-01-10',
     });
 
     await createPlaceViaApi({
@@ -50,6 +86,7 @@ test.describe('Places search and filters', () => {
       isPublic: false,
       lat: 41.9028,
       lng: 12.4964,
+      visitedAt: '2025-05-15',
     });
 
     await createPlaceViaApi({
@@ -60,11 +97,12 @@ test.describe('Places search and filters', () => {
       isPublic: true,
       lat: 48.8566,
       lng: 2.3522,
+      visitedAt: '2024-09-20',
     });
 
     await loginViaUi(page, user);
 
-    await expect(page.locator('.leaflet-marker-icon')).toHaveCount(3);
+    await expectRenderedPlacesCount(page, 3);
 
     await page.getByRole('button', { name: /поиск|поиск и фильтры/i }).click();
 
@@ -72,26 +110,26 @@ test.describe('Places search and filters', () => {
       .getByPlaceholder('Поиск по месту, стране, описанию')
       .fill('Cairo');
 
-    await expect(page.locator('.leaflet-marker-icon')).toHaveCount(1);
+    await expectRenderedPlacesCount(page, 1);
     await expect(page.getByText(/Найдено 1 из 3/i)).toBeVisible();
 
     await page.getByPlaceholder('Поиск по месту, стране, описанию').fill('');
 
-    await expect(page.locator('.leaflet-marker-icon')).toHaveCount(3);
+    await expectRenderedPlacesCount(page, 3);
 
     await page.getByRole('button', { name: 'Публичные' }).click();
 
-    await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2);
+    await expectRenderedPlacesCount(page, 2);
     await expect(page.getByText(/Найдено 2 из 3/i)).toBeVisible();
 
     await page.getByRole('button', { name: 'Скрытые' }).click();
 
-    await expect(page.locator('.leaflet-marker-icon')).toHaveCount(1);
+    await expectRenderedPlacesCount(page, 1);
     await expect(page.getByText(/Найдено 1 из 3/i)).toBeVisible();
 
     await page.getByRole('button', { name: 'Сбросить' }).click();
 
-    await expect(page.locator('.leaflet-marker-icon')).toHaveCount(3);
+    await expectRenderedPlacesCount(page, 3);
     await expect(page.getByText(/Найдено 3 из 3/i)).toBeVisible();
   });
 });

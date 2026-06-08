@@ -1,6 +1,12 @@
 import { useMemo, useState } from 'react';
-import { MapContainer, Marker, TileLayer } from 'react-leaflet';
+
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+
+import { MapContainer, Marker, TileLayer } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
+
 import { Loader2 } from 'lucide-react';
 
 import { createPlaceIcon, IPlace, useDeletePlace } from '@/entities/place';
@@ -11,8 +17,9 @@ import { getTileUrl } from '@/shared/lib/get-tile-url';
 
 import { MapClickHandler } from './map-click-handler';
 import { PlacePopupContent } from './place-popup-content';
+import { createClusterIcon } from './create-cluster-icon';
 
-interface TravelMapProps {
+interface ITravelMapProps {
   places: IPlace[];
   isLoading: boolean;
   isFetching?: boolean;
@@ -25,7 +32,7 @@ export const TravelMap = ({
   places,
   isLoading,
   isFetching = false,
-}: TravelMapProps) => {
+}: ITravelMapProps) => {
   const { mutate: deletePlace } = useDeletePlace();
 
   const [pendingCoords, setPendingCoords] = useState<{
@@ -109,16 +116,24 @@ export const TravelMap = ({
           }}
         />
 
-        {places.map((place) => (
-          <Marker
-            key={place.id}
-            position={[place.lat, place.lng]}
-            icon={placeIcon}
-            eventHandlers={{
-              click: () => handleOpenPlace(place),
-            }}
-          />
-        ))}
+        <MarkerClusterGroup
+          chunkedLoading
+          showCoverageOnHover={false}
+          spiderfyOnMaxZoom
+          maxClusterRadius={48}
+          iconCreateFunction={createClusterIcon}
+        >
+          {places.map((place) => (
+            <Marker
+              key={place.id}
+              position={[place.lat, place.lng]}
+              icon={placeIcon}
+              eventHandlers={{
+                click: () => handleOpenPlace(place),
+              }}
+            />
+          ))}
+        </MarkerClusterGroup>
       </MapContainer>
 
       <div className="pointer-events-none absolute bottom-5 left-5 z-1000 hidden sm:block">

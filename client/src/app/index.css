@@ -557,6 +557,33 @@ input[type='date']::-webkit-calendar-picker-indicator {
   box-shadow: 0 12px 30px rgb(0 0 0 / 0.28);
 }
 
+/* Wanderboard cluster */
+
+.wanderboard-cluster-wrapper {
+  background: transparent;
+  border: 0;
+}
+
+.wanderboard-cluster {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid rgb(15 23 42);
+  border-radius: 999px;
+  background: var(--wb-brand);
+  color: rgb(15 23 42);
+  box-shadow: 0 14px 34px rgb(15 23 42 / 0.24);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.dark .wanderboard-cluster {
+  border-color: rgb(248 250 252);
+  box-shadow: 0 16px 38px rgb(0 0 0 / 0.45);
+}
+
 /* Scrollbar */
 
 * {
