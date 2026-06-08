@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
+import type { LeafletKeyboardEvent } from 'leaflet';
 import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 
@@ -18,6 +19,7 @@ import { getTileUrl } from '@/shared/lib/get-tile-url';
 import { MapClickHandler } from './map-click-handler';
 import { PlacePopupContent } from './place-popup-content';
 import { createClusterIcon } from './create-cluster-icon';
+import { useEscapeKey } from '@/shared/hooks/use-escape-key';
 
 interface ITravelMapProps {
   places: IPlace[];
@@ -56,11 +58,17 @@ export const TravelMap = ({
   const { theme } = useTheme();
   const tileUrl = getTileUrl(theme);
 
-  const closeAllOverlays = () => {
+  const closeAllOverlays = useCallback(() => {
     setPendingCoords(null);
     setSelectedPlaceId(null);
     setEditingPlaceId(null);
-  };
+  }, []);
+
+  const hasOpenOverlay = Boolean(
+    pendingCoords || selectedPlace || editingPlace
+  );
+
+  useEscapeKey(closeAllOverlays, hasOpenOverlay);
 
   const handleOpenPlace = (place: IPlace) => {
     setPendingCoords(null);
@@ -82,8 +90,16 @@ export const TravelMap = ({
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center bg-[#f6f5ef] dark:bg-slate-950">
-        <div className="flex items-center gap-3 rounded-full border border-white/80 bg-white/90 px-5 py-3 shadow-[0_16px_50px_rgba(15,23,42,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/90">
-          <Loader2 className="h-5 w-5 animate-spin text-slate-950 dark:text-slate-50" />
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex items-center gap-3 rounded-full border border-white/80 bg-white/90 px-5 py-3 shadow-[0_16px_50px_rgba(15,23,42,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/90"
+        >
+          <Loader2
+            className="h-5 w-5 animate-spin text-slate-950 dark:text-slate-50"
+            aria-hidden="true"
+          />
+
           <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
             Загружаем карту...
           </span>
@@ -93,7 +109,11 @@ export const TravelMap = ({
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
+    <div
+      className="relative h-full w-full overflow-hidden"
+      role="region"
+      aria-label="Интерактивная карта путешествий"
+    >
       <MapContainer
         center={[20, 0]}
         zoom={2}
@@ -128,8 +148,22 @@ export const TravelMap = ({
               key={place.id}
               position={[place.lat, place.lng]}
               icon={placeIcon}
+              keyboard
+              title={place.name}
+              alt={`Место: ${place.name}`}
               eventHandlers={{
                 click: () => handleOpenPlace(place),
+                keydown: (event: LeafletKeyboardEvent) => {
+                  const originalEvent = event.originalEvent;
+
+                  if (
+                    originalEvent.key === 'Enter' ||
+                    originalEvent.key === ' '
+                  ) {
+                    originalEvent.preventDefault();
+                    handleOpenPlace(place);
+                  }
+                },
               }}
             />
           ))}
@@ -141,7 +175,11 @@ export const TravelMap = ({
       </div>
 
       {isFetching && (
-        <div className="pointer-events-none absolute bottom-5 right-5 z-1000 hidden rounded-full wb-panel px-4 py-2 text-xs font-bold text-slate-500 sm:block dark:text-slate-300">
+        <div
+          role="status"
+          aria-live="polite"
+          className="pointer-events-none absolute bottom-5 right-5 z-1000 hidden rounded-full wb-panel px-4 py-2 text-xs font-bold text-slate-500 sm:block dark:text-slate-300"
+        >
           Обновляем...
         </div>
       )}

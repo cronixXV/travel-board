@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 
 import { TPlaceVisibilityFilter } from '@/entities/place';
+import { useCallback } from 'react';
+import { useEscapeKey } from '@/shared/hooks/use-escape-key';
 
 interface IPlacesSearchButtonProps {
   search: string;
@@ -29,6 +31,8 @@ const filters: Array<{
   { value: 'private', label: 'Скрытые' },
 ];
 
+const searchPanelId = 'places-search-panel';
+
 export const PlacesSearchButton = ({
   search,
   visibility,
@@ -42,6 +46,12 @@ export const PlacesSearchButton = ({
 }: IPlacesSearchButtonProps) => {
   const hasFilters = Boolean(search.trim()) || visibility !== 'all';
 
+  const handleClose = useCallback(() => {
+    onOpenChange(false);
+  }, [onOpenChange]);
+
+  useEscapeKey(handleClose, isOpen);
+
   return (
     <div className="relative">
       <button
@@ -52,12 +62,14 @@ export const PlacesSearchButton = ({
             ? 'bg-[#ffdf3d] text-slate-950 shadow-sm'
             : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10'
         }`}
-        aria-label="Поиск и фильтры"
+        aria-label="Поиск и фильтры мест"
+        aria-expanded={isOpen}
+        aria-controls={searchPanelId}
       >
         {hasFilters ? (
-          <SlidersHorizontal className="h-4 w-4" />
+          <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
         ) : (
-          <Search className="h-4 w-4" />
+          <Search className="h-4 w-4" aria-hidden="true" />
         )}
 
         <span className="hidden lg:ml-2 lg:inline">
@@ -65,12 +77,20 @@ export const PlacesSearchButton = ({
         </span>
 
         {hasFilters && (
-          <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-950" />
+          <span
+            className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-950"
+            aria-hidden="true"
+          />
         )}
       </button>
 
       {isOpen && (
-        <div className="fixed left-3 right-3 top-20 z-[1400] rounded-[28px] wb-card p-3 shadow-[0_20px_70px_rgba(15,23,42,0.22)] ring-1 ring-slate-200/70 backdrop-blur-xl sm:absolute sm:left-auto sm:right-0 sm:top-14 sm:w-[22rem] dark:ring-white/10">
+        <div
+          id={searchPanelId}
+          role="dialog"
+          aria-label="Поиск и фильтры мест"
+          className="fixed left-3 right-3 top-20 z-[1400] rounded-[28px] wb-card p-3 shadow-[0_20px_70px_rgba(15,23,42,0.22)] ring-1 ring-slate-200/70 backdrop-blur-xl sm:absolute sm:left-auto sm:right-0 sm:top-14 sm:w-[22rem] dark:ring-white/10"
+        >
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <p className="text-sm font-bold text-slate-950 dark:text-slate-50">
@@ -83,22 +103,26 @@ export const PlacesSearchButton = ({
 
             <button
               type="button"
-              onClick={() => onOpenChange(false)}
+              onClick={handleClose}
               aria-label="Свернуть поиск"
               className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-white/10 dark:hover:text-slate-100"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
 
           <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+            <Search
+              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+              aria-hidden="true"
+            />
 
             <input
               type="text"
               value={search}
               onChange={(event) => onSearchChange(event.target.value)}
               placeholder="Поиск по месту, стране, описанию"
+              aria-label="Поиск по месту, стране или описанию"
               className="h-11 w-full rounded-2xl wb-input pl-11 pr-10 text-sm font-medium outline-none transition placeholder:text-muted-foreground focus:border-[#ffdf3d] focus:ring-3 focus:ring-[#ffdf3d]/30"
               autoFocus
             />
@@ -110,12 +134,16 @@ export const PlacesSearchButton = ({
                 aria-label="Очистить поиск"
                 className="absolute right-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-white/10 dark:hover:text-slate-100"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
             )}
           </div>
 
-          <div className="mt-3 grid grid-cols-3 gap-1.5">
+          <div
+            className="mt-3 grid grid-cols-3 gap-1.5"
+            role="group"
+            aria-label="Фильтр публичности мест"
+          >
             {filters.map((filter) => {
               const isActive = visibility === filter.value;
 
@@ -124,6 +152,7 @@ export const PlacesSearchButton = ({
                   key={filter.value}
                   type="button"
                   onClick={() => onVisibilityChange(filter.value)}
+                  aria-pressed={isActive}
                   className={`rounded-2xl px-3 py-2 text-xs font-bold transition ${
                     isActive
                       ? 'bg-[#ffdf3d] text-slate-950 shadow-sm'
@@ -139,14 +168,23 @@ export const PlacesSearchButton = ({
           <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl wb-muted-card px-3 py-2">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
               {visibility === 'public' ? (
-                <Globe2 className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                <Globe2
+                  className="h-4 w-4 text-slate-400 dark:text-slate-500"
+                  aria-hidden="true"
+                />
               ) : visibility === 'private' ? (
-                <LockKeyhole className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                <LockKeyhole
+                  className="h-4 w-4 text-slate-400 dark:text-slate-500"
+                  aria-hidden="true"
+                />
               ) : (
-                <Search className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                <Search
+                  className="h-4 w-4 text-slate-400 dark:text-slate-500"
+                  aria-hidden="true"
+                />
               )}
 
-              <span>
+              <span aria-live="polite">
                 Найдено {filteredCount} из {totalCount}
               </span>
             </div>

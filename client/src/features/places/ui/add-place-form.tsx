@@ -66,6 +66,10 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-place-title"
+      aria-describedby="add-place-description"
       className="pointer-events-auto flex max-h-full w-full max-w-md flex-col overflow-hidden rounded-[28px] wb-card ring-1 ring-slate-200/70 dark:ring-white/10"
       onClick={stopMapEvent}
       onDoubleClick={stopMapEvent}
@@ -73,21 +77,31 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
       onPointerDown={stopMapEvent}
       onWheel={stopMapEvent}
     >
-      <div className="h-2 shrink-0 bg-[#ffdf3d]" />
+      <div className="h-2 shrink-0 bg-[#ffdf3d]" aria-hidden="true" />
 
-      <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+      <form
+        onSubmit={handleSubmit}
+        className="flex min-h-0 flex-1 flex-col"
+        aria-busy={isPending}
+      >
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden px-5 py-5">
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl wb-brand-icon shadow-sm">
-                <MapPin className="h-5 w-5" />
+                <MapPin className="h-5 w-5" aria-hidden="true" />
               </div>
 
-              <h3 className="text-xl font-bold tracking-[-0.02em] text-slate-950 dark:text-slate-50">
+              <h3
+                id="add-place-title"
+                className="text-xl font-bold tracking-[-0.02em] text-slate-950 dark:text-slate-50"
+              >
                 Новое место
               </h3>
 
-              <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">
+              <p
+                id="add-place-description"
+                className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400"
+              >
                 Добавьте точку на свою карту путешествий.
               </p>
             </div>
@@ -95,16 +109,24 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
             <button
               type="button"
               onClick={onClose}
-              aria-label="Закрыть"
+              aria-label="Закрыть форму добавления места"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
 
-          <div className="flex items-center gap-2 rounded-2xl wb-muted-card px-3 py-2 text-xs font-medium">
-            <Navigation className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-            <span>
+          <div
+            className="flex items-center gap-2 rounded-2xl wb-muted-card px-3 py-2 text-xs font-medium"
+            aria-label={`Координаты места: широта ${lat.toFixed(
+              4
+            )}, долгота ${lng.toFixed(4)}`}
+          >
+            <Navigation
+              className="h-4 w-4 text-slate-400 dark:text-slate-500"
+              aria-hidden="true"
+            />
+            <span aria-hidden="true">
               {lat.toFixed(4)}, {lng.toFixed(4)}
             </span>
           </div>
@@ -122,6 +144,8 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
               onChange={(event) => setName(event.target.value)}
               className={inputClassName}
               autoFocus
+              required
+              aria-required="true"
             />
           </div>
 
@@ -146,7 +170,10 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
             </Label>
 
             <div className="relative">
-              <CalendarDays className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+              <CalendarDays
+                className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+                aria-hidden="true"
+              />
 
               <Input
                 id="place-visited-at"
@@ -162,17 +189,24 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
             <div className="flex min-w-0 items-center gap-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm dark:bg-slate-950/70 dark:text-slate-300">
                 {isPublic ? (
-                  <Globe2 className="h-4 w-4" />
+                  <Globe2 className="h-4 w-4" aria-hidden="true" />
                 ) : (
-                  <LockKeyhole className="h-4 w-4" />
+                  <LockKeyhole className="h-4 w-4" aria-hidden="true" />
                 )}
               </div>
 
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-950 dark:text-slate-50">
+                <p
+                  id="add-place-public-label"
+                  className="text-sm font-semibold text-slate-950 dark:text-slate-50"
+                >
                   {isPublic ? 'Публичное место' : 'Скрытое место'}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+
+                <p
+                  id="add-place-public-description"
+                  className="text-xs text-slate-500 dark:text-slate-400"
+                >
                   {isPublic ? 'Будет видно по ссылке' : 'Видно только вам'}
                 </p>
               </div>
@@ -181,15 +215,19 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
             <button
               type="button"
               onClick={() => setIsPublic((prev) => !prev)}
+              role="switch"
+              aria-checked={isPublic}
+              aria-labelledby="add-place-public-label"
+              aria-describedby="add-place-public-description"
               className={`relative h-7 w-12 shrink-0 rounded-full transition ${
                 isPublic ? 'bg-[#ffdf3d]' : 'bg-slate-200 dark:bg-slate-700'
               }`}
-              aria-label="Изменить публичность места"
             >
               <span
                 className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition ${
                   isPublic ? 'left-6' : 'left-1'
                 }`}
+                aria-hidden="true"
               />
             </button>
           </div>
@@ -213,7 +251,10 @@ export const AddPlaceForm = ({ lat, lng, onClose }: IAddPlaceFormProps) => {
             >
               {isPending ? (
                 <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2
+                    className="h-4 w-4 animate-spin"
+                    aria-hidden="true"
+                  />
                   Сохраняем
                 </span>
               ) : (

@@ -52,6 +52,9 @@ export const DashboardLayout = ({
 
   return (
     <div className="relative h-[100dvh] overflow-hidden wb-page">
+      <a href="#main-content" className="skip-link">
+        Перейти к карте
+      </a>
       <header className="pointer-events-none absolute left-0 right-0 top-0 z-1200 px-4 pt-4 sm:px-6">
         <div className="mx-auto flex max-w-7xl items-start justify-between gap-2 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-3">
           <div className="flex justify-start">
@@ -81,7 +84,10 @@ export const DashboardLayout = ({
           </div>
 
           <div className="flex justify-end">
-            <div className={`${headerPanelClassName} gap-2 rounded-full p-2`}>
+            <div
+              className={`${headerPanelClassName} gap-2 rounded-full p-2 sm:gap-3 sm:px-3 sm:py-2`}
+              aria-label="Wanderboard"
+            >
               <div className="hidden items-center gap-2 rounded-full wb-muted-card px-3 py-2 sm:flex">
                 <UserRound className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -99,6 +105,9 @@ export const DashboardLayout = ({
                 size="sm"
                 onClick={handleShare}
                 className={actionButtonClassName}
+                aria-label={
+                  copied ? 'Ссылка скопирована' : 'Скопировать публичную ссылку'
+                }
               >
                 {copied ? (
                   <>
@@ -121,6 +130,7 @@ export const DashboardLayout = ({
                 size="sm"
                 onClick={() => logout()}
                 className={actionButtonClassName}
+                aria-label="Выйти из аккаунта"
               >
                 <LogOut className="h-4 w-4 sm:mr-1" />
                 <span className="hidden sm:inline">Выйти</span>
@@ -130,7 +140,9 @@ export const DashboardLayout = ({
         </div>
       </header>
 
-      <main className="h-[100dvh]">{children}</main>
+      <main id="main-content" className="h-[100dvh]" tabIndex={-1}>
+        {children}
+      </main>
     </div>
   );
 };
