@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import {
   BarChart3,
   Camera,
@@ -9,10 +10,10 @@ import {
 } from 'lucide-react';
 
 import { usePlacesStats } from '@/entities/place';
+import { useEscapeKey } from '@/shared/hooks/use-escape-key';
+
 import { StatCard } from './stats-card';
 import { StatsList } from './stats-list';
-import { useCallback } from 'react';
-import { useEscapeKey } from '@/shared/hooks/use-escape-key';
 
 interface IPlacesStatsButtonProps {
   isOpen: boolean;
@@ -95,29 +96,36 @@ export const PlacesStatsButton = ({
                   label="мест"
                   value={stats.totalPlaces}
                   icon={MapPin}
+                  testId="stats-total-places"
                 />
 
                 <StatCard
                   label="стран"
                   value={stats.totalCountries}
                   icon={Globe2}
+                  testId="stats-total-countries"
                 />
 
                 <StatCard
                   label="континентов"
                   value={stats.totalContinents}
                   icon={PieChart}
+                  testId="stats-total-continents"
                 />
 
                 <StatCard
                   label="фото"
                   value={stats.totalPhotos}
                   icon={Camera}
+                  testId="stats-total-photos"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-2xl wb-muted-card px-4 py-3">
+                <div
+                  data-testid="stats-public-places"
+                  className="rounded-2xl wb-muted-card px-4 py-3"
+                >
                   <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm dark:bg-slate-950/70 dark:text-slate-300">
                     <Globe2 className="h-4 w-4" aria-hidden="true" />
                   </div>
@@ -131,7 +139,10 @@ export const PlacesStatsButton = ({
                   </p>
                 </div>
 
-                <div className="rounded-2xl wb-muted-card px-4 py-3">
+                <div
+                  data-testid="stats-private-places"
+                  className="rounded-2xl wb-muted-card px-4 py-3"
+                >
                   <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm dark:bg-slate-950/70 dark:text-slate-300">
                     <LockKeyhole className="h-4 w-4" aria-hidden="true" />
                   </div>
@@ -148,6 +159,7 @@ export const PlacesStatsButton = ({
 
               <StatsList
                 title="Континенты"
+                testId="stats-by-continent"
                 items={stats.byContinent.map((item) => ({
                   label: item.continent,
                   count: item.count,
@@ -156,6 +168,7 @@ export const PlacesStatsButton = ({
 
               <StatsList
                 title="Топ стран"
+                testId="stats-by-country"
                 items={stats.byCountry.map((item) => ({
                   label: item.country,
                   count: item.count,
@@ -164,6 +177,7 @@ export const PlacesStatsButton = ({
 
               <StatsList
                 title="Места по годам"
+                testId="stats-by-year"
                 items={stats.byYear.map((item) => ({
                   label: item.year,
                   count: item.count,

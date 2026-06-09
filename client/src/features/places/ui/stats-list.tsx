@@ -1,10 +1,10 @@
-export const StatsList = ({
-  title,
-  items,
-}: {
+interface IStatsListProps {
   title: string;
   items: Array<{ label: string; count: number }>;
-}) => {
+  testId?: string;
+}
+
+export const StatsList = ({ title, items, testId }: IStatsListProps) => {
   if (!items.length) {
     return null;
   }
@@ -12,7 +12,7 @@ export const StatsList = ({
   const maxCount = Math.max(...items.map((item) => item.count), 1);
 
   return (
-    <div className="rounded-2xl wb-muted-card p-3">
+    <div data-testid={testId} className="rounded-2xl wb-muted-card p-3">
       <p className="mb-3 text-sm font-bold text-slate-950 dark:text-slate-50">
         {title}
       </p>
@@ -27,6 +27,7 @@ export const StatsList = ({
                 <span className="truncate text-slate-600 dark:text-slate-300">
                   {item.label}
                 </span>
+
                 <span className="shrink-0 text-slate-500 dark:text-slate-400">
                   {item.count}
                 </span>

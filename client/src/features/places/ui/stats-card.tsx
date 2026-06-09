@@ -1,18 +1,22 @@
-import { MapPin } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
+
+interface IStatCardProps {
+  label: string;
+  value: number;
+  icon: LucideIcon;
+  testId?: string;
+}
 
 export const StatCard = ({
   label,
   value,
   icon: Icon,
-}: {
-  label: string;
-  value: number;
-  icon: typeof MapPin;
-}) => {
+  testId,
+}: IStatCardProps) => {
   return (
-    <div className="rounded-2xl wb-muted-card px-3 py-3">
+    <div data-testid={testId} className="rounded-2xl wb-muted-card px-3 py-3">
       <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl wb-brand-icon shadow-sm">
-        <Icon className="h-4 w-4" />
+        <Icon className="h-4 w-4" aria-hidden="true" />
       </div>
 
       <p className="text-lg font-black leading-none tracking-[-0.03em] text-slate-950 dark:text-slate-50">
