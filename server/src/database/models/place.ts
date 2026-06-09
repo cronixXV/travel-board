@@ -43,7 +43,7 @@ export class Place extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
-  continent?: string | null;
+  declare continent: string | null;
 
   @Column(DataType.DATEONLY)
   declare visitedAt: string | null;

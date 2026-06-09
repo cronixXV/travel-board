@@ -230,29 +230,56 @@ const normalizeCountryName = (value: string) => {
 
 const CONTINENT_BY_COUNTRY_NAME: Record<string, string> = {
   россия: 'Европа',
-  бразилия: 'Южная Америка',
-  'соединённые штаты америки': 'Северная Америка',
-  'соединенные штаты америки': 'Северная Америка',
-  сша: 'Северная Америка',
   беларусь: 'Европа',
   италия: 'Европа',
   франция: 'Европа',
   германия: 'Европа',
   испания: 'Европа',
+  португалия: 'Европа',
+  нидерланды: 'Европа',
+  польша: 'Европа',
+  'соединённое королевство': 'Европа',
+  'соединенное королевство': 'Европа',
+
   япония: 'Азия',
   китай: 'Азия',
+  тайланд: 'Азия',
+  таиланд: 'Азия',
+  индия: 'Азия',
+  турция: 'Азия',
+  'объединённые арабские эмираты': 'Азия',
+  'объединенные арабские эмираты': 'Азия',
+
   египет: 'Африка',
+  марокко: 'Африка',
+  тунис: 'Африка',
+  кения: 'Африка',
+  'южно-африканская республика': 'Африка',
+
+  сша: 'Северная Америка',
+  'соединённые штаты америки': 'Северная Америка',
+  'соединенные штаты америки': 'Северная Америка',
+  канада: 'Северная Америка',
+  мексика: 'Северная Америка',
+
+  бразилия: 'Южная Америка',
+  аргентина: 'Южная Америка',
+  чили: 'Южная Америка',
+  перу: 'Южная Америка',
+  колумбия: 'Южная Америка',
+
   австралия: 'Океания',
-};
-
-export const getContinentByCountryCode = (countryCode?: string | null) => {
-  if (!countryCode) return null;
-
-  return CONTINENT_BY_COUNTRY_CODE[countryCode.toUpperCase()] || null;
+  'новая зеландия': 'Океания',
 };
 
 export const getContinentByCountryName = (country?: string | null) => {
   if (!country) return null;
 
   return CONTINENT_BY_COUNTRY_NAME[normalizeCountryName(country)] || null;
+};
+
+export const getContinentByCountryCode = (countryCode?: string | null) => {
+  if (!countryCode) return null;
+
+  return CONTINENT_BY_COUNTRY_CODE[countryCode.toUpperCase()] || null;
 };
